@@ -1,0 +1,16 @@
+modal
+fastapi[standard]
+tribev2
+exca
+pillow
+moviepy
+pandas
+yt-dlp
+numpy>=1.26.4,<2.3
+scipy>=1.13
+matplotlib
+requests
+nibabel
+nilearn
+neuralset
+neuraltrain
