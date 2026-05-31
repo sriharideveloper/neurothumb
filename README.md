@@ -313,9 +313,18 @@ We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guid
 
 ## License
 
-This project is licensed under the MIT License - see [LICENSE](LICENSE) for details.
+This project is licensed under the **Creative Commons Attribution-NonCommercial 4.0 International (CC-BY-NC 4.0)** license - see [LICENSE](LICENSE) for details.
 
-**TRIBE v2 Model**: Licensed under CC-BY-NC 4.0 - see [LICENSE-TRIBE-V2](LICENSE-TRIBE-V2) for details.
+This ensures consistency with the underlying TRIBE v2 model, which is also licensed under CC-BY-NC 4.0.
+
+**Key Points**:
+- ✓ Non-commercial use allowed
+- ✓ Modification and adaptation permitted
+- ✓ Distribution and sharing allowed
+- ✗ Commercial use prohibited without explicit permission
+- ✓ Attribution required
+
+For commercial use, please contact the authors for a commercial license.
 
 ## Citation
 

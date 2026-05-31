@@ -14,7 +14,7 @@ import styles from './page.module.scss';
 
 const proofPoints = [
   { value: '4', label: 'Core attention signals' },
-  { value: '1', label: 'Free thumbnail analysis' },
+  { value: '∞', label: 'Free analyses (open source)' },
   { value: '24/7', label: 'Saved processing recovery' },
 ];
 
@@ -30,6 +30,10 @@ const differentiators = [
   {
     title: 'Built for accountable teams',
     body: 'Every signed-in analysis is tied to the right account, saved to history, and recoverable if a tab closes mid-run.',
+  },
+  {
+    title: 'Open source & self-hosted',
+    body: 'Deploy Croissant on your own infrastructure. Use your own Modal, Supabase, and Gemini credentials. Full control, zero vendor lock-in.',
   },
 ];
 
@@ -60,7 +64,7 @@ const caseStudies = [
 const workflow = [
   'Upload a thumbnail or run a channel scan.',
   'Croissant starts a durable analysis job and saves the record.',
-  "Meta's frontier neuro model turns attention into heatmaps and cognitive signals.",
+  "TRIBE v2 frontier neuro model turns attention into heatmaps and cognitive signals.",
   "Croissant's AI Assistant turns the signals into a practical creative decision.",
 ];
 
@@ -159,14 +163,16 @@ export default function Home() {
       <main className={styles.main}>
       <nav className={styles.topNav} aria-label="Primary navigation">
         <button className={styles.logoButton} onClick={scrollToAnalyzer} aria-label="Go to analyzer">
-          <span className={styles.logoMark}>C.</span>
+          <span className={styles.logoMark}>🥐</span>
           <span>Croissant</span>
+          <span className={styles.openSourceBadge}>Open Source</span>
         </button>
 
         <div className={styles.navLinks}>
           <a href="#difference">Difference</a>
           <a href="#workflow">Workflow</a>
           <a href="#proof">Proof</a>
+          <a href="https://github.com/sriharideveloper/neurothumb" target="_blank" rel="noreferrer" title="GitHub Repository">GitHub</a>
           <Link href="/privacy">Privacy</Link>
           <Link href="/terms">Terms</Link>
         </div>
@@ -195,21 +201,27 @@ export default function Home() {
 
       <motion.section className={styles.hero} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.55 }}>
         <div className={styles.heroCopy}>
-          <p className={styles.kicker}>Meta frontier neuro thumbnail intelligence</p>
+          <div className={styles.heroKicker}>
+            <span className={styles.openSourceLabel}>🚀 Open Source</span>
+            <p>TRIBE v2 frontier neuro thumbnail intelligence</p>
+          </div>
           <h1>Creative decisions, backed by attention modeling.</h1>
           <p className={styles.heroText}>
-            Croissant makes frontier thumbnail analysis usable for creators, production houses, agencies, and brand teams. Upload once, get a neural heatmap, cognitive metrics, and a practical CTR strategy audit.
+            Croissant makes frontier thumbnail analysis usable for creators, production houses, agencies, and brand teams. Upload once, get a neural heatmap, cognitive metrics, and a practical CTR strategy audit. Now open source—deploy on your own infrastructure with your own credentials.
           </p>
           <div className={styles.heroActions}>
             <button className={styles.primaryCta} onClick={scrollToAnalyzer}>
               Run free analysis
             </button>
-            <Link className={styles.secondaryCta} href="/login">
-              Save my analyses
-            </Link>
+            <a className={styles.secondaryCta} href="https://github.com/sriharideveloper/neurothumb" target="_blank" rel="noreferrer">
+              Deploy yourself
+            </a>
           </div>
           <div className={styles.trialLine}>
-            {user ? `Signed in as ${user.email}` : trialStatus.used ? 'Free trial used on this device. Sign in to keep analyzing.' : 'One free analysis. No credit card required.'}
+            {user ? `Signed in as ${user.email}` : 'Unlimited free analyses. No credit card required.'}
+          </div>
+          <div className={styles.licenseBadge}>
+            Licensed under CC-BY-NC 4.0 • Powered by Croissant Labs
           </div>
         </div>
 
@@ -252,7 +264,7 @@ export default function Home() {
           <p className={styles.kicker}>Use the lab</p>
           <h2>Run the analysis without needing a research team.</h2>
           <p>
-            Croissant handles storage, Meta frontier neuro-model inference, AI Assistant recommendations, and saved history with account-safe processing.
+            Croissant handles storage, TRIBE v2 frontier neuro-model inference, AI Assistant recommendations, and saved history with account-safe processing. Deploy your own instance or use the hosted version.
           </p>
         </div>
 
@@ -305,8 +317,9 @@ export default function Home() {
 
       <motion.section className={styles.ethosSection} id="ethos" {...motionIn}>
         <div>
-          <p className={styles.kicker}>Research ethos</p>
+          <p className={styles.kicker}>Research ethos & open source</p>
           <h2>Built around the idea that creative should be tested against cognition.</h2>
+          <p>Croissant is open source under CC-BY-NC 4.0, enabling researchers, creators, and teams to deploy frontier AI without vendor lock-in.</p>
         </div>
         <div className={styles.ethosLinks}>
           <a href="https://aidemos.atmeta.com/tribev2" target="_blank" rel="noreferrer">
@@ -314,6 +327,12 @@ export default function Home() {
           </a>
           <a href="https://ai.meta.com/research/publications/a-foundation-model-of-vision-audition-and-language-for-in-silico-neuroscience/" target="_blank" rel="noreferrer">
             Meta research publication
+          </a>
+          <a href="https://github.com/sriharideveloper/neurothumb" target="_blank" rel="noreferrer">
+            GitHub repository
+          </a>
+          <a href="https://github.com/sriharideveloper/neurothumb#quickstart" target="_blank" rel="noreferrer">
+            5-minute setup guide
           </a>
         </div>
       </motion.section>
@@ -370,30 +389,46 @@ export default function Home() {
         <p className={styles.kicker}>Bring the frontier to publishing</p>
         <h2>One upload can change the creative conversation.</h2>
         <p>
-          Use Croissant for pitch reviews, thumbnail variants, creator packaging, launch campaigns, and brand-safe creative iteration.
+          Use Croissant for pitch reviews, thumbnail variants, creator packaging, launch campaigns, and brand-safe creative iteration. Deploy it yourself with your own credentials.
         </p>
         <div className={styles.heroActions}>
           <button className={styles.primaryCta} onClick={scrollToAnalyzer}>
             Analyze a thumbnail
           </button>
-          {!user && (
-            <Link className={styles.secondaryCta} href="/login">
-              Create free account
-            </Link>
-          )}
+          <a className={styles.secondaryCta} href="https://github.com/sriharideveloper/neurothumb" target="_blank" rel="noreferrer">
+            Self-host on GitHub
+          </a>
         </div>
       </motion.section>
 
       <footer className={styles.footer}>
         <div>
-          <strong>Croissant</strong>
-          <p>Meta frontier neuro attention modeling made usable for modern creative teams.</p>
+          <strong>Croissant Labs</strong>
+          <p>TRIBE v2 frontier neuro attention modeling made usable for modern creative teams. Open source, self-hosted, no vendor lock-in.</p>
         </div>
         <div className={styles.footerLinks}>
-          <a href="#analyzer">Analyzer</a>
-          <a href="#difference">Difference</a>
-          <Link href="/privacy">Privacy</Link>
-          <Link href="/terms">Terms</Link>
+          <div>
+            <h4>Product</h4>
+            <a href="#analyzer">Analyzer</a>
+            <a href="#difference">Why Croissant</a>
+            <a href="#workflow">How it works</a>
+          </div>
+          <div>
+            <h4>Community</h4>
+            <a href="https://github.com/sriharideveloper/neurothumb" target="_blank" rel="noreferrer">GitHub</a>
+            <a href="https://github.com/sriharideveloper/neurothumb/issues" target="_blank" rel="noreferrer">Issues</a>
+            <a href="https://github.com/sriharideveloper/neurothumb#contributing" target="_blank" rel="noreferrer">Contributing</a>
+          </div>
+          <div>
+            <h4>Legal</h4>
+            <Link href="/privacy">Privacy</Link>
+            <Link href="/terms">Terms</Link>
+            <a href="https://github.com/sriharideveloper/neurothumb/blob/main/LICENSE" target="_blank" rel="noreferrer">CC-BY-NC 4.0</a>
+          </div>
+        </div>
+        <div className={styles.footerBottom}>
+          <p>© 2024 Croissant Labs. Licensed under CC-BY-NC 4.0. Powered by TRIBE v2 (Meta).</p>
+          <p>Built with ❤️ by the community. <a href="https://github.com/sriharideveloper/neurothumb" target="_blank" rel="noreferrer">Contribute on GitHub</a></p>
         </div>
       </footer>
       </main>
@@ -402,20 +437,16 @@ export default function Home() {
 }
 
 function getDeviceFingerprint() {
-  const fingerprint = [
-    navigator.userAgent,
-    navigator.language,
+  if (typeof window === 'undefined') return 'server';
+  const nav = window.navigator;
+  const screen = window.screen;
+  const parts = [
+    nav.userAgent,
+    nav.language,
+    screen.width,
+    screen.height,
+    screen.colorDepth,
     new Date().getTimezoneOffset(),
-    navigator.hardwareConcurrency || 0,
-    navigator.deviceMemory || 0,
-  ].join('|');
-
-  let hash = 0;
-  for (let i = 0; i < fingerprint.length; i += 1) {
-    const char = fingerprint.charCodeAt(i);
-    hash = ((hash << 5) - hash) + char;
-    hash &= hash;
-  }
-
-  return Math.abs(hash).toString(16);
+  ];
+  return btoa(parts.join('|')).slice(0, 32);
 }
