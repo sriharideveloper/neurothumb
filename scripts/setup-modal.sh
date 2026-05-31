@@ -197,8 +197,8 @@ extract_endpoints() {
     if [ -z "$modal_output" ]; then
         print_warning "Could not automatically extract endpoints"
         print_info "Please manually add endpoints to .env.local:"
-        echo "  MODAL_ENDPOINT_URL=https://your-username--croissant-analyze.modal.run"
-        echo "  MODAL_CHANNEL_ENDPOINT_URL=https://your-username--croissant-analyze-channel.modal.run"
+        echo "  MODAL_ENDPOINT_URL=https://your-username--crossaint-analyze.modal.run"
+        echo "  MODAL_CHANNEL_ENDPOINT_URL=https://your-username--crossaint-analyze-channel.modal.run"
         return 1
     fi
     
@@ -223,8 +223,8 @@ generate_env_file() {
 # ============================================================================
 
 # Modal Configuration
-MODAL_ENDPOINT_URL=${endpoint_url:-https://your-username--croissant-analyze.modal.run}
-MODAL_CHANNEL_ENDPOINT_URL=${channel_endpoint_url:-https://your-username--croissant-analyze-channel.modal.run}
+MODAL_ENDPOINT_URL=${endpoint_url:-https://your-username--crossaint-analyze.modal.run}
+	MODAL_CHANNEL_ENDPOINT_URL=${channel_endpoint_url:-https://your-username--crossaint-analyze-channel.modal.run}
 
 # Supabase Configuration (REQUIRED - Add your credentials)
 NEXT_PUBLIC_SUPABASE_URL=

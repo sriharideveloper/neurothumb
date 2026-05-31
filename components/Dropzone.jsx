@@ -3,13 +3,14 @@
 
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useAuth } from '@/app/AuthContext';
+import { motion, AnimatePresence } from 'framer-motion';
 import styles from './Dropzone.module.scss';
 
 export default function Dropzone({ onAnalysisComplete, showAuthPrompt }) {
   const [isDragActive, setIsDragActive] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [showLimitModal, setShowLimitModal] = useState(false);
-  const [loadingStep, setLoadingStep] = useState('Uploading to cloud storage...');
+  const [loadingStep, setLoadingStep] = useState('Initializing pipeline...');
   const [previewFile, setPreviewFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
   const [apiError, setApiError] = useState(null);
@@ -67,14 +68,11 @@ export default function Dropzone({ onAnalysisComplete, showAuthPrompt }) {
     }
   }, [clearPendingSession, getAuthHeaders, onAnalysisComplete]);
 
-  // Check for ongoing analysis on mount/tab focus
   useEffect(() => {
     const checkOngoingAnalysis = () => {
       const { sessionId, startTime } = getPendingSession();
-      
       if (sessionId && startTime) {
         const elapsed = Date.now() - parseInt(startTime);
-        // External inference can take several minutes; keep the durable job visible for a long recovery window.
         if (elapsed < 60 * 60 * 1000) {
           checkAnalysisStatus(sessionId);
         } else {
@@ -82,7 +80,6 @@ export default function Dropzone({ onAnalysisComplete, showAuthPrompt }) {
         }
       }
     };
-
     window.addEventListener('focus', checkOngoingAnalysis);
     checkOngoingAnalysis();
     return () => window.removeEventListener('focus', checkOngoingAnalysis);
@@ -92,11 +89,9 @@ export default function Dropzone({ onAnalysisComplete, showAuthPrompt }) {
     if (!isLoading) return undefined;
     const { sessionId } = getPendingSession();
     if (!sessionId) return undefined;
-
     const timer = window.setInterval(() => {
       checkAnalysisStatus(sessionId);
     }, 5000);
-
     return () => window.clearInterval(timer);
   }, [checkAnalysisStatus, getPendingSession, isLoading]);
 
@@ -104,44 +99,23 @@ export default function Dropzone({ onAnalysisComplete, showAuthPrompt }) {
     if (!f) return 'No file selected.';
     const maxBytes = 10 * 1024 * 1024;
     const allowed = ['image/png', 'image/jpeg', 'image/webp'];
-
-    if (typeof f.size === 'number' && f.size > maxBytes) {
-      return 'This file is too large. Please upload an image under 10MB.';
-    }
-    if (f.type && !allowed.includes(f.type)) {
-      return 'Unsupported file type. Please upload a PNG, JPEG, or WEBP image.';
-    }
+    if (typeof f.size === 'number' && f.size > maxBytes) return 'File too large (Max 10MB).';
+    if (f.type && !allowed.includes(f.type)) return 'Unsupported file type.';
     return null;
-  };
-
-  const parseApiError = async (res) => {
-    try {
-      const data = await res.json();
-      if (data?.error) return String(data.error);
-      if (data?.message) return String(data.message);
-    } catch (e) {
-      // ignore
-    }
-    return `Request failed (${res.status})`;
   };
 
   const handleDrag = (e) => {
     e.preventDefault();
     e.stopPropagation();
     if (!isLoading && !previewFile) {
-      if (e.type === 'dragenter' || e.type === 'dragover') {
-        setIsDragActive(true);
-      } else if (e.type === 'dragleave') {
-        setIsDragActive(false);
-      }
+      if (e.type === 'dragenter' || e.type === 'dragover') setIsDragActive(true);
+      else if (e.type === 'dragleave') setIsDragActive(false);
     }
   };
 
   const showPreview = (file) => {
     const reader = new FileReader();
-    reader.onload = (e) => {
-      setPreviewUrl(e.target.result);
-    };
+    reader.onload = (e) => setPreviewUrl(e.target.result);
     reader.readAsDataURL(file);
     setPreviewFile(file);
   };
@@ -155,7 +129,7 @@ export default function Dropzone({ onAnalysisComplete, showAuthPrompt }) {
   const startAnalysis = async () => {
     if (!previewFile) return;
     if (authLoading) {
-      setApiError('Finishing sign-in check. Please try again in a moment.');
+      setApiError('Authenticating...');
       return;
     }
     setApiError(null);
@@ -167,7 +141,6 @@ export default function Dropzone({ onAnalysisComplete, showAuthPrompt }) {
       return;
     }
 
-    // Check trial limit - ONLY block unauthenticated users after 1 free trial
     const disableTrialBlock = process.env.NEXT_PUBLIC_DISABLE_TRIAL_BLOCK === 'true';
     const hasUsedFreeTrial = localStorage.getItem('hasUsedFreeTrial');
     if (!user && !disableTrialBlock && hasUsedFreeTrial === 'true') {
@@ -177,7 +150,7 @@ export default function Dropzone({ onAnalysisComplete, showAuthPrompt }) {
     }
 
     setIsLoading(true);
-    setLoadingStep('Uploading to cloud storage...');
+    setLoadingStep('Uploading...');
     const sessionId = `session_${Date.now()}_${Math.random().toString(36).slice(2)}`;
     savePendingSession(sessionId);
 
@@ -185,12 +158,9 @@ export default function Dropzone({ onAnalysisComplete, showAuthPrompt }) {
       const formData = new FormData();
       formData.append('file', previewFile);
       formData.append('sessionId', sessionId);
-      if (user?.id) {
-        formData.append('userId', user.id);
-      }
+      if (user?.id) formData.append('userId', user.id);
 
-      setLoadingStep("Running Meta's frontier neuro model...");
-      
+      setLoadingStep("Running Neuro Model...");
       const response = await fetch('/api/analyze', {
         method: 'POST',
         headers: getAuthHeaders(),
@@ -198,32 +168,23 @@ export default function Dropzone({ onAnalysisComplete, showAuthPrompt }) {
       });
 
       if (!response.ok) {
-        const message = await parseApiError(response);
-        throw new Error(message);
+        const data = await response.json();
+        throw new Error(data?.error || 'Analysis failed.');
       }
 
-      setLoadingStep("Croissant's AI Assistant is preparing strategic recommendations...");
       const data = await response.json();
-
-      // If the API started a durable analysis job, keep polling even if user navigates away.
       if (data?.processing && data?.sessionId) {
-        setLoadingStep("Queued - running Meta's frontier neuro model...");
         savePendingSession(data.sessionId);
         return;
       }
 
-      // Only mark free trial as used for anonymous users
-      if (!disableTrialBlock && !user) {
-        localStorage.setItem('hasUsedFreeTrial', 'true');
-      }
-
+      if (!disableTrialBlock && !user) localStorage.setItem('hasUsedFreeTrial', 'true');
       clearPendingSession();
-      
       setPreviewFile(null);
       setPreviewUrl(null);
       onAnalysisComplete(data);
     } catch (err) {
-      setApiError(err.message || 'Something went wrong while analyzing your thumbnail.');
+      setApiError(err.message);
       setIsLoading(false);
       clearPendingSession();
     }
@@ -233,164 +194,116 @@ export default function Dropzone({ onAnalysisComplete, showAuthPrompt }) {
     e.preventDefault();
     e.stopPropagation();
     setIsDragActive(false);
-
-    if (!isLoading && !previewFile && e.dataTransfer.files && e.dataTransfer.files[0]) {
+    if (!isLoading && !previewFile && e.dataTransfer.files?.[0]) {
       const f = e.dataTransfer.files[0];
       const msg = validateClientFile(f);
-      if (msg) {
-        setApiError(msg);
-        return;
-      }
-      setApiError(null);
-      showPreview(f);
+      if (msg) setApiError(msg);
+      else { setApiError(null); showPreview(f); }
     }
   };
 
   const handleChange = (e) => {
-    e.preventDefault();
-    if (!isLoading && !previewFile && e.target.files && e.target.files[0]) {
+    if (!isLoading && !previewFile && e.target.files?.[0]) {
       const f = e.target.files[0];
       const msg = validateClientFile(f);
-      if (msg) {
-        setApiError(msg);
-        return;
-      }
-      setApiError(null);
-      showPreview(f);
+      if (msg) setApiError(msg);
+      else { setApiError(null); showPreview(f); }
     }
   };
 
-  const onButtonClick = () => {
-    if (!isLoading && !previewFile) {
-      fileInputRef.current.click();
-    }
-  };
-
-  // Preview Modal
-  if (previewFile && previewUrl) {
-    return (
-      <div className={styles.container}>
-        <div className={styles.previewModal}>
-          <div className={styles.previewContent}>
-            <h2 className={styles.previewTitle}>Review Your Thumbnail</h2>
-            <img src={previewUrl} alt="Preview" className={styles.previewImage} />
-            <p className={styles.previewHint}>
-              This image will be analyzed for attention patterns and neuroscience metrics
-            </p>
-            <p className={styles.restrictions}>{restrictionsText}</p>
-            <div className={styles.previewActions}>
-              <button 
-                className={styles.analyzeBtn}
-                onClick={startAnalysis}
-                disabled={isLoading}
-              >
-                {isLoading ? 'Processing...' : 'Analyze Now'}
-              </button>
-              <button 
-                className={styles.cancelBtn}
-                onClick={cancelPreview}
-                disabled={isLoading}
-              >
-                Change Image
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // Loading State
-  if (isLoading) {
-    return (
-      <div className={styles.container}>
-        <div className={styles.dropzone + ' ' + styles.processing}>
-          <div className={styles.loadingWrapper}>
-            <div className={styles.spinner} />
-            <h3 className={styles.loadingText}>Analyzing visual cortex</h3>
-            <p className={styles.loadingSub}>{loadingStep}</p>
-            <p className={styles.loadingNote}>
-              This will continue in the background if you close this tab
-            </p>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // Normal Dropzone
   return (
     <div className={styles.container}>
-      {apiError && (
-        <div className={styles.errorCard} role="alert" aria-live="polite">
-          <div className={styles.errorTitle}>Upload failed</div>
-          <div className={styles.errorMessage}>{apiError}</div>
-          <button className={styles.errorDismiss} onClick={() => setApiError(null)}>
-            Dismiss
-          </button>
-        </div>
-      )}
-      <div 
-        className={`${styles.dropzone} ${isDragActive ? styles.active : ''}`}
-        onDragEnter={handleDrag}
-        onDragOver={handleDrag}
-        onDragLeave={handleDrag}
-        onDrop={handleDrop}
-        onClick={onButtonClick}
-      >
-        <input
-          ref={fileInputRef}
-          type="file"
-          className={styles.hiddenInput}
-          accept="image/png,image/jpeg,image/webp"
-          onChange={handleChange}
-          disabled={isLoading || previewFile}
-        />
+      <AnimatePresence mode="wait">
+        {apiError && (
+          <motion.div 
+            className={styles.errorCard}
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+          >
+            <p>{apiError}</p>
+            <button onClick={() => setApiError(null)}>×</button>
+          </motion.div>
+        )}
 
-        <div className={styles.content}>
-          <div className={styles.iconWrapper}>
-            <svg 
-              className={styles.icon} 
-              fill="none" 
-              viewBox="0 0 24 24" 
-              stroke="currentColor"
-            >
-              <path 
-                strokeLinecap="round" 
-                strokeLinejoin="round" 
-                d="M12 9v6m3-3H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" 
-              />
-            </svg>
-          </div>
-          <h3 className={styles.title}>Drop your thumbnail here</h3>
-          <p className={styles.subtitle}>Upload one image for instant neuroscience attention mapping. No credit card required.</p>
-          <p className={styles.restrictions}>{restrictionsText}</p>
-        </div>
-      </div>
+        {previewFile && previewUrl ? (
+          <motion.div 
+            key="preview"
+            className={styles.previewContainer}
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+          >
+            <div className={styles.previewFrame}>
+              <img src={previewUrl} alt="Preview" />
+              <div className={styles.previewOverlay}>
+                <button className={styles.analyzeBtn} onClick={startAnalysis} disabled={isLoading}>
+                  {isLoading ? 'Processing...' : 'Run Analysis'}
+                </button>
+                <button className={styles.cancelBtn} onClick={cancelPreview} disabled={isLoading}>
+                  Cancel
+                </button>
+              </div>
+            </div>
+            <p className={styles.hint}>Ready for attention mapping</p>
+          </motion.div>
+        ) : isLoading ? (
+          <motion.div 
+            key="loading"
+            className={styles.loadingContainer}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <div className={styles.spinner} />
+            <h3>{loadingStep}</h3>
+            <p>Background processing active</p>
+          </motion.div>
+        ) : (
+          <motion.div 
+            key="dropzone"
+            className={`${styles.dropzone} ${isDragActive ? styles.active : ''}`}
+            onDragEnter={handleDrag}
+            onDragOver={handleDrag}
+            onDragLeave={handleDrag}
+            onDrop={handleDrop}
+            onClick={() => fileInputRef.current.click()}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <input
+              ref={fileInputRef}
+              type="file"
+              className={styles.hiddenInput}
+              accept="image/png,image/jpeg,image/webp"
+              onChange={handleChange}
+            />
+            <div className={styles.content}>
+              <div className={styles.iconBox}>
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4v16m8-8H4" />
+                </svg>
+              </div>
+              <h3>Select Thumbnail</h3>
+              <p>Drag and drop or click to upload</p>
+              <span className={styles.meta}>{restrictionsText}</span>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {showLimitModal && (
         <div className={styles.modalOverlay}>
           <div className={styles.modal}>
-            <div className={styles.modalIcon}>*</div>
-            <h3 className={styles.modalTitle}>Limit Reached</h3>
-            <p className={styles.modalDesc}>
-              You have completed your free trial generation. Premium analysis requires a free Croissant account or an active subscription tier.
-            </p>
+            <h3>Limit Reached</h3>
+            <p>You have used your free analysis. Create a free account to continue.</p>
             <div className={styles.modalActions}>
-              <button 
-                className={styles.primaryBtn}
-                onClick={() => {
-                  setShowLimitModal(false);
-                  showAuthPrompt?.();
-                }}
-              >
-                Create Free Account
+              <button className={styles.primaryBtn} onClick={() => { setShowLimitModal(false); showAuthPrompt?.(); }}>
+                Create Account
               </button>
-              <button 
-                className={styles.secondaryBtn} 
-                onClick={() => setShowLimitModal(false)}
-              >
-                Dismiss
+              <button className={styles.secondaryBtn} onClick={() => setShowLimitModal(false)}>
+                Later
               </button>
             </div>
           </div>

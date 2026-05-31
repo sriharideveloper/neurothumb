@@ -1,6 +1,6 @@
 import { ImageResponse } from 'next/og';
 
-export const alt = 'Croissant thumbnail intelligence dashboard preview';
+export const alt = 'Crossaint Labs thumbnail intelligence dashboard preview';
 export const size = {
   width: 1200,
   height: 630,
@@ -99,7 +99,7 @@ export default function Image() {
               marginBottom: 24,
             }}
           >
-            Croissant
+            Crossaint Labs
           </div>
           <div
             style={{
@@ -121,7 +121,7 @@ export default function Image() {
               maxWidth: 640,
             }}
           >
-            Meta frontier neuro-model heatmaps, cognitive metrics, and Croissant AI Assistant for creators, studios, agencies, and brand teams.
+            Meta frontier neuro-model heatmaps, cognitive metrics, and Crossaint Labs AI Assistant for creators, studios, agencies, and brand teams.
           </div>
         </div>
       </div>

@@ -4,7 +4,7 @@ import styles from '../privacy/privacy.module.scss';
 export const metadata = {
   title: 'Terms and Conditions',
   description:
-    'Croissant terms for using thumbnail analysis, account history, Croissant AI Assistant outputs, and generated attention artifacts.',
+    'Crossaint Labs terms for using thumbnail analysis, account history, and generated attention artifacts.',
   alternates: {
     canonical: '/terms',
   },
@@ -12,38 +12,38 @@ export const metadata = {
 
 const sections = [
   {
-    title: 'Using Croissant',
+    title: 'Using Crossaint Labs',
     body: [
-      "Croissant provides thumbnail intelligence, attention maps, cognitive metrics, and Croissant AI Assistant outputs for creative decision support. The service is not a guarantee of views, revenue, platform ranking, or campaign performance.",
-      "You are responsible for the thumbnails, channel information, and other materials you upload or submit. Only upload content you own, control, or are authorized to evaluate.",
+      "Crossaint Labs provides thumbnail intelligence, attention maps, and cognitive metrics for creative decision support. The service is not a guarantee of platform performance.",
+      "You are responsible for the thumbnails and materials you upload. Only upload content you own or are authorized to evaluate.",
     ],
   },
   {
     title: 'Accounts and Ownership',
     body: [
-      "Signed-in analyses are associated with the authenticated user id returned by the platform's auth system. Do not attempt to access, modify, or claim another user's analyses.",
-      "You are responsible for keeping your sign-in methods secure. Croissant may restrict or suspend access for abuse, attempted bypassing, automated scraping, or unsafe use.",
+      "Signed-in analyses are associated with your authenticated account. Do not attempt to access or claim another user's data.",
+      "You are responsible for account security. Crossaint Labs may restrict access for abuse, scraping, or unsafe use.",
     ],
   },
   {
-    title: 'Analysis Artifacts and Study Use',
+    title: 'Analysis Artifacts',
     body: [
-      'Uploaded thumbnails, generated attention maps, brain maps, metrics, derived labels, and model outputs are product analysis artifacts. Croissant may use these artifacts in a privacy-conscious way for research, benchmarking, product improvement, abuse prevention, and model training or evaluation.',
-      'Do not upload sensitive personal information, confidential client assets, unreleased campaign material, or third-party content unless you have permission and are comfortable with processing under these terms and the privacy policy.',
+      'Uploaded thumbnails, generated attention maps, and metrics are product analysis artifacts. Crossaint Labs may use these for research and product improvement.',
+      'Do not upload sensitive personal information or confidential client assets unless you are comfortable with processing under these terms.',
     ],
   },
   {
     title: 'Availability and Results',
     body: [
-      "Croissant depends on hosting, storage, AI, and inference infrastructure. We work to make processing durable and recoverable, but we do not promise uninterrupted service or perfect outputs.",
-      "Creative recommendations are informational. Your team should apply professional judgment before publishing, spending media budget, or making brand decisions.",
+      "Crossaint Labs depends on AI and inference infrastructure. We strive for durability but do not promise uninterrupted service or perfect outputs.",
+      "Creative recommendations are informational. Apply professional judgment before making brand decisions.",
     ],
   },
   {
     title: 'Commercial Terms',
     body: [
-      'Free trials, credits, and pricing may change as Croissant evolves. Paid plans, if enabled, are governed by the checkout terms shown at purchase and any applicable subscription rules.',
-      'Croissant may update these terms as the product matures. Continued use after updates means you accept the revised terms.',
+      'Pricing and free trials may change as the product evolves. Paid plans are governed by checkout terms.',
+      'Crossaint Labs may update these terms. Continued use means you accept the revised terms.',
     ],
   },
 ];
@@ -52,21 +52,26 @@ export default function TermsPage() {
   return (
     <main className={styles.page}>
       <nav className={styles.nav}>
-        <Link href="/" className={styles.brand}>Croissant</Link>
-        <div className={styles.navLinks}>
-          <Link href="/privacy" className={styles.backLink}>Privacy</Link>
-          <Link href="/" className={styles.backLink}>Back to analyzer</Link>
+        <div className={styles.navContent}>
+          <Link href="/" className={styles.brand}>
+            <span className={styles.logoMark}>🥐</span>
+            <span>Crossaint Labs</span>
+          </Link>
+          <div className={styles.navLinks}>
+            <Link href="/privacy" className={styles.secondaryBtn}>Privacy</Link>
+            <Link href="/" className={styles.secondaryBtn}>Back to Analyzer</Link>
+          </div>
         </div>
       </nav>
 
-      <section className={styles.hero}>
-        <p className={styles.kicker}>Terms and conditions</p>
-        <h1>Clear rules for frontier creative analysis.</h1>
+      <header className={styles.hero}>
+        <span className={styles.kicker}>Terms and conditions</span>
+        <h1>Rules for creative analysis.</h1>
         <p>
-          These terms explain how Croissant should be used, what you are responsible for,
-          and how generated analysis artifacts may help improve the product.
+          These terms explain how Crossaint Labs should be used, what you are responsible for,
+          and how generated analysis artifacts help improve the product.
         </p>
-      </section>
+      </header>
 
       <section className={styles.content}>
         {sections.map((section) => (
@@ -81,7 +86,7 @@ export default function TermsPage() {
 
       <footer className={styles.footer}>
         <p>Last updated May 28, 2026.</p>
-        <Link href="/privacy">Privacy policy</Link>
+        <p>© 2026 Crossaint Labs.</p>
       </footer>
     </main>
   );

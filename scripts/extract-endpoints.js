@@ -22,7 +22,7 @@ const OUTPUT_FILE = process.argv.includes('--output')
   ? process.argv[process.argv.indexOf('--output') + 1]
   : '.env.local';
 
-const ENDPOINT_PATTERN = /https:\/\/[a-zA-Z0-9-]+--croissant-[a-zA-Z0-9-]+\.modal\.run/g;
+const ENDPOINT_PATTERN = /https:\/\/[a-zA-Z0-9-]+--crossaint-[a-zA-Z0-9-]+\.modal\.run/g;
 
 // ============================================================================
 // Helper Functions
@@ -126,8 +126,8 @@ function generateEnvContent(endpoints) {
 # ============================================================================
 
 # Modal Configuration
-MODAL_ENDPOINT_URL=${endpoints.analyze || 'https://your-username--croissant-analyze.modal.run'}
-MODAL_CHANNEL_ENDPOINT_URL=${endpoints.analyzeChannel || 'https://your-username--croissant-analyze-channel.modal.run'}
+MODAL_ENDPOINT_URL=${endpoints.analyze || 'https://your-username--crossaint-analyze.modal.run'}
+MODAL_CHANNEL_ENDPOINT_URL=${endpoints.analyzeChannel || 'https://your-username--crossaint-analyze-channel.modal.run'}
 
 # Supabase Configuration (REQUIRED - Add your credentials)
 NEXT_PUBLIC_SUPABASE_URL=

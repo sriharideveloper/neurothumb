@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { supabase, useAuth } from '@/app/AuthContext';
+import { motion } from 'framer-motion';
 import styles from './Gallery.module.scss';
 
 export default function Gallery({ onSelectGeneration }) {
@@ -66,21 +67,19 @@ export default function Gallery({ onSelectGeneration }) {
 
   useEffect(() => {
     if (user?.id && supabase) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       fetchGenerations();
     } else if (!user?.id && supabase) {
       setLoading(false);
       setGenerations([]);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.id, supabase]);
 
   if (!user) {
     return (
       <div className={styles.container}>
         <div className={styles.emptyState}>
-          <h2>Sign In to View Your Analyses</h2>
-          <p>Create an account to save and track all your thumbnail analyses</p>
+          <h2>Sign In to View History</h2>
+          <p>Create an account to save and track all your thumbnail analyses.</p>
         </div>
       </div>
     );
@@ -91,7 +90,7 @@ export default function Gallery({ onSelectGeneration }) {
       <div className={styles.container}>
         <div className={styles.loading}>
           <div className={styles.spinner} />
-          <p>Loading your analyses...</p>
+          <p>Fetching history...</p>
         </div>
       </div>
     );
@@ -101,7 +100,7 @@ export default function Gallery({ onSelectGeneration }) {
     return (
       <div className={styles.container}>
         <div className={styles.error}>
-          <h3>Error Loading Analyses</h3>
+          <h3>Connection Error</h3>
           <p>{error}</p>
           <button onClick={fetchGenerations} className={styles.retryBtn}>
             Try Again
@@ -115,8 +114,8 @@ export default function Gallery({ onSelectGeneration }) {
     return (
       <div className={styles.container}>
         <div className={styles.emptyState}>
-          <h2>No Analyses Yet</h2>
-          <p>Start by uploading your first thumbnail to get instant neuroscience-powered insights</p>
+          <h2>No History Found</h2>
+          <p>Start by uploading your first thumbnail to get instant neuroscience-powered insights.</p>
         </div>
       </div>
     );
@@ -125,19 +124,21 @@ export default function Gallery({ onSelectGeneration }) {
   return (
     <div className={styles.container}>
       <div className={styles.header}>
-        <h2>Your Analyses</h2>
-        <p className={styles.headerSub}>{generations.length} thumbnail{generations.length !== 1 ? 's' : ''} analyzed - Click any to view full results</p>
+        <span className={styles.kicker}>Saved Analyses</span>
+        <h2>Generation History</h2>
+        <p className={styles.headerSub}>{generations.length} items analyzed</p>
       </div>
       <div className={styles.grid}>
-        {generations.map((gen) => (
-          <div
+        {generations.map((gen, i) => (
+          <motion.div
             key={gen.id}
             className={styles.card}
-            data-generation-id={gen.id}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: i * 0.05, ease: [0.16, 1, 0.3, 1] }}
             onClick={() => onSelectGeneration && onSelectGeneration(gen)}
             role="button"
             tabIndex={0}
-            aria-label={`Generation from ${new Date(gen.created_at).toLocaleDateString()} - Score: ${gen.raw_metrics?.peak_top_roi_score?.toFixed(3) || 'N/A'}`}
             onKeyDown={(e) => {
               if (e.key === 'Enter' || e.key === ' ') {
                 onSelectGeneration && onSelectGeneration(gen);
@@ -147,31 +148,34 @@ export default function Gallery({ onSelectGeneration }) {
             <div className={styles.imageWrapper}>
               <img 
                 src={gen.image_url} 
-                alt={`Thumbnail analyzed on ${new Date(gen.created_at).toLocaleDateString()}`}
+                alt="Analysis"
                 loading="lazy"
                 onError={(e) => {
                   e.target.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="100" height="100"%3E%3Crect fill="%23e0e0e0" width="100" height="100"/%3E%3C/svg%3E';
                 }}
               />
               <div className={styles.overlay}>
-                <span className={styles.viewBtn}>View</span>
+                <span className={styles.viewBtn}>View Report</span>
               </div>
             </div>
             <div className={styles.cardContent}>
-              <div className={styles.score}>
-                {gen.raw_metrics?.peak_top_roi_score 
-                  ? gen.raw_metrics.peak_top_roi_score.toFixed(3) 
-                  : 'N/A'}
+              <div className={styles.scoreRow}>
+                <span className={styles.scoreLabel}>Peak Score</span>
+                <span className={styles.scoreValue}>
+                  {gen.raw_metrics?.peak_top_roi_score 
+                    ? gen.raw_metrics.peak_top_roi_score.toFixed(3) 
+                    : 'N/A'}
+                </span>
               </div>
               <div className={styles.date}>
                 {new Date(gen.created_at).toLocaleDateString('en-US', {
-                  year: 'numeric',
                   month: 'short',
-                  day: 'numeric'
+                  day: 'numeric',
+                  year: 'numeric'
                 })}
               </div>
             </div>
-          </div>
+          </motion.div>
         ))}
       </div>
     </div>

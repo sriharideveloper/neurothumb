@@ -3,39 +3,37 @@ import { Analytics } from '@vercel/analytics/next';
 import './globals.scss';
 import Providers from './providers';
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://croissant.ai';
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://crossaint.ai';
 
 export const metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: 'Croissant - Meta Frontier Neuro Thumbnail Intelligence',
-    template: '%s | Croissant',
+    default: 'Crossaint Labs - Neuro-Thumbnail Intelligence',
+    template: '%s | Crossaint Labs',
   },
   description:
-    "Croissant makes Meta's frontier neuro model usable for creators, studios, agencies, and brand teams. Upload a thumbnail and get attention maps, cognitive metrics, and Croissant's AI Assistant in minutes.",
-  applicationName: 'Croissant',
+    "Crossaint Labs makes frontier neuro models usable for creators, studios, and agencies. Get attention maps, cognitive metrics, and AI-driven CTR strategy in minutes.",
+  applicationName: 'Crossaint Labs',
   keywords: [
-    'Croissant',
+    'Crossaint Labs',
     'thumbnail analysis',
-    "Meta frontier neuro model",
     'YouTube CTR',
     'attention heatmap',
     'neuroscience marketing',
     'creator analytics',
-    'brand creative testing',
   ],
-  authors: [{ name: 'Croissant Technologies' }],
-  creator: 'Croissant Technologies',
-  publisher: 'Croissant Technologies',
+  authors: [{ name: 'Crossaint Labs' }],
+  creator: 'Crossaint Labs',
+  publisher: 'Crossaint Labs',
   alternates: {
     canonical: '/',
   },
   openGraph: {
-    title: 'Croissant - Frontier attention modeling for thumbnails',
+    title: 'Crossaint Labs - Frontier attention modeling for thumbnails',
     description:
-      "Run Meta frontier neuro thumbnail analysis from a polished browser workflow. Attention maps, cognitive metrics, Croissant's AI Assistant, and saved analysis history.",
+      "Run frontier neuro thumbnail analysis. Attention maps, cognitive metrics, AI strategy, and saved history.",
     url: '/',
-    siteName: 'Croissant',
+    siteName: 'Crossaint Labs',
     type: 'website',
     locale: 'en_US',
     images: [
@@ -43,27 +41,20 @@ export const metadata = {
         url: '/opengraph-image',
         width: 1200,
         height: 630,
-        alt: 'Croissant thumbnail intelligence dashboard preview',
+        alt: 'Crossaint Labs thumbnail intelligence dashboard preview',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Croissant - Meta Frontier Neuro Thumbnail Intelligence',
+    title: 'Crossaint Labs - Neuro-Thumbnail Intelligence',
     description:
-      "Attention maps and Croissant's AI Assistant for YouTube thumbnails, built for creators, studios, agencies, and brand teams.",
+      "Attention maps and AI strategy for YouTube thumbnails, built for creators and agencies.",
     images: ['/twitter-image'],
   },
   robots: {
     index: true,
     follow: true,
-    googleBot: {
-      index: true,
-      follow: true,
-      'max-image-preview': 'large',
-      'max-snippet': -1,
-      'max-video-preview': -1,
-    },
   },
 };
 

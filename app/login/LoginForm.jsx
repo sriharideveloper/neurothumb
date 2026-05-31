@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useState } from 'react';
 import { useAuth } from '@/app/AuthContext';
+import { motion, AnimatePresence } from 'framer-motion';
 import styles from './login.module.scss';
 
 export default function LoginForm() {
@@ -26,7 +27,7 @@ export default function LoginForm() {
     try {
       if (mode === 'signup') {
         await signUp(email, password, fullName);
-        setMessage('Check your email for the confirmation link, then sign in to save analyses.');
+        setMessage('Check your email for the confirmation link.');
         setMode('signin');
         event.currentTarget.reset();
       } else {
@@ -34,7 +35,7 @@ export default function LoginForm() {
         window.location.href = '/';
       }
     } catch (err) {
-      setError(err.message || 'Authentication failed. Please try again.');
+      setError(err.message || 'Authentication failed.');
     } finally {
       setLoading(false);
     }
@@ -43,73 +44,86 @@ export default function LoginForm() {
   return (
     <main className={styles.page}>
       <nav className={styles.nav}>
-        <Link href="/" className={styles.brand}>
-          <span>C.</span>
-          Croissant
-        </Link>
-        <Link href="/" className={styles.backLink}>Back to analyzer</Link>
+        <div className={styles.navContent}>
+          <Link href="/" className={styles.brand}>
+            <span className={styles.logoMark}>🥐</span>
+            <span>Crossaint Labs</span>
+          </Link>
+          <Link href="/" className={styles.backLink}>Back to Analyzer</Link>
+        </div>
       </nav>
 
       <section className={styles.shell}>
-        <div className={styles.copy}>
-          <p className={styles.kicker}>Account-safe analysis</p>
-          <h1>Save every thumbnail run to the right workspace.</h1>
+        <motion.div 
+          className={styles.copy}
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+        >
+          <span className={styles.kicker}>Account Access</span>
+          <h1>Save your analysis history.</h1>
           <p>
-            Sign in to keep long-running analyses recoverable, attach Croissant AI Assistant recommendations to your user id,
-            and build a clean analysis history for client and production reviews.
+            Sign in to keep long-running analyses recoverable and build a clean history for your production reviews.
           </p>
-        </div>
+        </motion.div>
 
-        <form className={styles.form} onSubmit={handleSubmit}>
-          <div className={styles.tabs} role="tablist" aria-label="Authentication mode">
+        <motion.div 
+          className={styles.formCard}
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+        >
+          <div className={styles.tabs}>
             <button
               type="button"
               className={mode === 'signin' ? styles.activeTab : ''}
-              onClick={() => {
-                setMode('signin');
-                setError('');
-                setMessage('');
-              }}
+              onClick={() => setMode('signin')}
             >
-              Sign in
+              Sign In
             </button>
             <button
               type="button"
               className={mode === 'signup' ? styles.activeTab : ''}
-              onClick={() => {
-                setMode('signup');
-                setError('');
-                setMessage('');
-              }}
+              onClick={() => setMode('signup')}
             >
-              Create account
+              Register
             </button>
           </div>
 
-          {mode === 'signup' && (
-            <label>
-              Full name
-              <input name="fullName" type="text" autoComplete="name" placeholder="Your name" required />
-            </label>
-          )}
+          <form className={styles.form} onSubmit={handleSubmit}>
+            <AnimatePresence mode="wait">
+              {mode === 'signup' && (
+                <motion.div 
+                  key="signup-fields"
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className={styles.inputGroup}
+                >
+                  <label>Full Name</label>
+                  <input name="fullName" type="text" placeholder="Your name" required />
+                </motion.div>
+              )}
+            </AnimatePresence>
 
-          <label>
-            Email
-            <input name="email" type="email" autoComplete="email" placeholder="you@example.com" required />
-          </label>
+            <div className={styles.inputGroup}>
+              <label>Email Address</label>
+              <input name="email" type="email" placeholder="you@example.com" required />
+            </div>
 
-          <label>
-            Password
-            <input name="password" type="password" autoComplete={mode === 'signin' ? 'current-password' : 'new-password'} placeholder="Password" required minLength={6} />
-          </label>
+            <div className={styles.inputGroup}>
+              <label>Password</label>
+              <input name="password" type="password" placeholder="••••••••" required minLength={6} />
+            </div>
 
-          {error && <p className={styles.error} role="alert">{error}</p>}
-          {message && <p className={styles.message} role="status">{message}</p>}
+            {error && <p className={styles.error}>{error}</p>}
+            {message && <p className={styles.message}>{message}</p>}
 
-          <button className={styles.submit} type="submit" disabled={loading}>
-            {loading ? 'Working...' : mode === 'signin' ? 'Sign in' : 'Create free account'}
-          </button>
-        </form>
+            <button className={styles.submit} type="submit" disabled={loading}>
+              {loading ? 'Authenticating...' : mode === 'signin' ? 'Sign In' : 'Create Account'}
+            </button>
+          </form>
+        </motion.div>
       </section>
     </main>
   );

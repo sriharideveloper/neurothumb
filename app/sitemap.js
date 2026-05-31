@@ -1,5 +1,5 @@
 export default function sitemap() {
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://croissant.ai';
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://crossaint.ai';
   const now = new Date();
 
   return [

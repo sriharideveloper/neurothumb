@@ -2,6 +2,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import styles from './ChannelAnalyzer.module.scss';
 
 function imgSrc(base64) {
@@ -22,17 +23,17 @@ export default function ChannelAnalyzer() {
   const [result, setResult] = useState(null);
 
   const metricCards = useMemo(() => ([
-    { name: 'Visual Cortex Mean', key: 'visual_mean', max: 1.5 },
-    { name: 'Attention Control Index', key: 'attention_control_mean', max: 1.5 },
-    { name: 'Peak Cortical Score', key: 'peak_top_roi_score', max: 2.0 },
-    { name: 'Language Processing', key: 'language_semantic_mean', max: 1.0 },
+    { name: 'Visual Cortex', key: 'visual_mean', max: 1.5 },
+    { name: 'Attention Control', key: 'attention_control_mean', max: 1.5 },
+    { name: 'Peak Cortical', key: 'peak_top_roi_score', max: 2.0 },
+    { name: 'Language', key: 'language_semantic_mean', max: 1.0 },
   ]), []);
 
   const onSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setIsLoading(true);
-    setLoadingStep("Pulling videos and running Meta's frontier neuro model over thumbnails...");
+    setLoadingStep("Fetching channel data...");
 
     try {
       const resp = await fetch('/api/analyze', {
@@ -48,11 +49,8 @@ export default function ChannelAnalyzer() {
       });
 
       const data = await resp.json().catch(() => ({}));
-      if (!resp.ok) {
-        throw new Error(data.error || 'Failed to analyze channel');
-      }
-      if (data?.error) throw new Error(data.error);
-      setLoadingStep('Rendering results...');
+      if (!resp.ok) throw new Error(data.error || 'Failed to analyze channel');
+      setLoadingStep('Finalizing report...');
       setResult(data);
     } catch (err) {
       setError(err?.message || 'An unexpected error occurred');
@@ -66,50 +64,51 @@ export default function ChannelAnalyzer() {
     return (
       <div className={styles.resultsWrap}>
         <div className={styles.resultsTop}>
-          <div>
-            <div className={styles.kicker}>YouTube Channel</div>
-            <h2 className={styles.resultsTitle}>{result.channel_handle || channelHandle}</h2>
-            <p className={styles.resultsMeta}>Analyzed {result?.results?.length || 0} videos</p>
+          <div className={styles.resultsHeader}>
+            <span className={styles.kicker}>YouTube Audit</span>
+            <h2>{result.channel_handle || channelHandle}</h2>
+            <p className={styles.resultsMeta}>{result?.results?.length || 0} videos processed</p>
           </div>
           <button className={styles.secondaryBtn} onClick={() => setResult(null)}>
-            Analyze Another
+            Reset
           </button>
         </div>
 
-        {result?.correlations ? (
-          <div className={styles.corrCard}>
-            <div className={styles.corrTitle}>Correlation (log views → brain metrics)</div>
+        {result?.correlations && (
+          <motion.div 
+            className={styles.corrCard}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+          >
+            <div className={styles.corrTitle}>Cognitive Correlations</div>
             <div className={styles.corrGrid}>
               {Object.entries(result.correlations || {}).map(([k, v]) => (
                 <div key={k} className={styles.corrItem}>
-                  <div className={styles.corrKey}>{k}</div>
+                  <div className={styles.corrKey}>{k.replace(/_/g, ' ')}</div>
                   <div className={styles.corrVal}>{typeof v === 'number' ? v.toFixed(3) : '—'}</div>
                 </div>
               ))}
             </div>
-          </div>
-        ) : null}
+          </motion.div>
+        )}
 
         <div className={styles.videoGrid}>
-          {(result.results || []).map((item) => {
+          {(result.results || []).map((item, i) => {
             const m = item.metrics || {};
-            const videoUrl = item.video_id ? `https://www.youtube.com/watch?v=${item.video_id}` : null;
             return (
-              <div className={styles.videoCard} key={item.video_id || item.title}>
+              <motion.div 
+                className={styles.videoCard} 
+                key={item.video_id || item.title}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: i * 0.1, ease: [0.16, 1, 0.3, 1] }}
+              >
                 <div className={styles.videoHeader}>
-                  <div>
-                    <div className={styles.videoTitle}>{item.title}</div>
-                    <div className={styles.videoMeta}>
-                      {item.selection_bucket ? <span className={styles.badge}>{item.selection_bucket}</span> : null}
-                      {typeof item.view_count === 'number' ? (
-                        <span className={styles.views}>{item.view_count.toLocaleString()} views</span>
-                      ) : null}
-                      {videoUrl ? (
-                        <a className={styles.videoLink} href={videoUrl} target="_blank" rel="noreferrer">
-                          Open on YouTube
-                        </a>
-                      ) : null}
-                    </div>
+                  <div className={styles.videoTitle}>{item.title}</div>
+                  <div className={styles.videoMeta}>
+                    {item.selection_bucket && <span className={styles.badge}>{item.selection_bucket}</span>}
+                    {typeof item.view_count === 'number' && <span>{item.view_count.toLocaleString()} views</span>}
                   </div>
                 </div>
 
@@ -121,7 +120,7 @@ export default function ChannelAnalyzer() {
                     </div>
                   </div>
                   <div className={styles.mediaCol}>
-                    <div className={styles.mediaLabel}>Frontier Neuro Attention Map</div>
+                    <div className={styles.mediaLabel}>Heatmap</div>
                     <div className={styles.mediaWrap}>
                       <img src={imgSrc(item.heatmap_base64)} alt="heatmap" />
                     </div>
@@ -134,16 +133,23 @@ export default function ChannelAnalyzer() {
                     const pct = Math.min(100, Math.max(5, (rawVal / mc.max) * 100));
                     return (
                       <div className={styles.metric} key={mc.key}>
-                        <div className={styles.metricName}>{mc.name}</div>
-                        <div className={styles.metricVal}>{rawVal.toFixed(3)}</div>
+                        <div className={styles.metricHeader}>
+                          <span className={styles.metricName}>{mc.name}</span>
+                          <span className={styles.metricVal}>{rawVal.toFixed(3)}</span>
+                        </div>
                         <div className={styles.bar}>
-                          <div className={styles.barFill} style={{ width: `${pct}%` }} />
+                          <motion.div 
+                            className={styles.barFill} 
+                            initial={{ width: 0 }}
+                            animate={{ width: `${pct}%` }}
+                            transition={{ duration: 1, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
+                          />
                         </div>
                       </div>
                     );
                   })}
                 </div>
-              </div>
+              </motion.div>
             );
           })}
         </div>
@@ -153,84 +159,87 @@ export default function ChannelAnalyzer() {
 
   return (
     <div className={styles.card}>
-      <h3 className={styles.title}>Analyze a YouTube channel</h3>
-      <p className={styles.subtitle}>
-        Enter a channel handle and we’ll analyze a mix of high-view and low-view uploads.
-      </p>
+      <div className={styles.cardHeader}>
+        <h3>Channel Intelligence</h3>
+        <p>Audit an entire channel to discover cognitive patterns in high-performing uploads.</p>
+      </div>
 
       <form className={styles.form} onSubmit={onSubmit}>
-        <label className={styles.label}>
-          Channel handle
+        <div className={styles.inputGroup}>
+          <label>Channel Handle</label>
           <input
-            className={styles.input}
             placeholder="@veritasium"
             value={channelHandle}
             onChange={(e) => setChannelHandle(e.target.value)}
             disabled={isLoading}
+            required
           />
-        </label>
+        </div>
 
-        <div className={styles.grid2}>
-          <label className={styles.label}>
-            # videos to analyze
+        <div className={styles.settingsGrid}>
+          <div className={styles.inputGroup}>
+            <label>Videos</label>
             <input
-              className={styles.input}
               type="number"
               min={1}
               max={30}
               value={totalVideos}
-              onChange={(e) => setTotalVideos(Number(e.target.value || 10))}
+              onChange={(e) => setTotalVideos(Number(e.target.value))}
               disabled={isLoading}
             />
-          </label>
-
-          <label className={styles.label}>
-            Playlist scan size
+          </div>
+          <div className={styles.inputGroup}>
+            <label>Scan Depth</label>
             <input
-              className={styles.input}
               type="number"
               min={10}
               max={200}
               value={playlistEnd}
-              onChange={(e) => setPlaylistEnd(Number(e.target.value || 80))}
+              onChange={(e) => setPlaylistEnd(Number(e.target.value))}
               disabled={isLoading}
             />
-          </label>
-
-          <label className={styles.label}>
-            Min age (days)
+          </div>
+          <div className={styles.inputGroup}>
+            <label>Min Age (Days)</label>
             <input
-              className={styles.input}
               type="number"
               min={0}
-              max={3650}
               value={daysOldMin}
-              onChange={(e) => setDaysOldMin(Number(e.target.value || 14))}
+              onChange={(e) => setDaysOldMin(Number(e.target.value))}
               disabled={isLoading}
             />
-          </label>
-
-          <label className={styles.label}>
-            Min duration (sec)
+          </div>
+          <div className={styles.inputGroup}>
+            <label>Min Duration (Sec)</label>
             <input
-              className={styles.input}
               type="number"
               min={0}
-              max={7200}
               value={minDurationSec}
-              onChange={(e) => setMinDurationSec(Number(e.target.value || 180))}
+              onChange={(e) => setMinDurationSec(Number(e.target.value))}
               disabled={isLoading}
             />
-          </label>
+          </div>
         </div>
 
-        {error ? <div className={styles.error}>{error}</div> : null}
+        {error && <div className={styles.error}>{error}</div>}
 
         <button className={styles.primaryBtn} type="submit" disabled={isLoading}>
-          {isLoading ? 'Analyzing…' : 'Run Channel Analysis'}
+          {isLoading ? 'Analyzing Pipeline...' : 'Run Channel Audit'}
         </button>
 
-        {isLoading ? <p className={styles.loadingSub}>{loadingStep}</p> : null}
+        <AnimatePresence>
+          {isLoading && (
+            <motion.p 
+              className={styles.loadingStep}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.3 }}
+            >
+              {loadingStep}
+            </motion.p>
+          )}
+        </AnimatePresence>
       </form>
     </div>
   );

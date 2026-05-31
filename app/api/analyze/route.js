@@ -286,7 +286,7 @@ const getCandidateModalChannelUrls = () => {
   }
 
   candidates.push(
-    "https://sriharideveloper--croissant-tribe-analyzer-analyze-channel.modal.run",
+    "https://crossaintlabs--crossaint-tribe-analyzer-analyze-channel.modal.run",
   );
 
   return [...new Set(candidates)].filter(Boolean);
@@ -298,7 +298,7 @@ const getModalAsyncUrl = () => {
 
   const analyzeUrl = process.env.MODAL_ENDPOINT_URL;
   if (!analyzeUrl) {
-    return "https://sriharideveloper--croissant-tribe-analyzer-analyze-async.modal.run";
+    return "https://crossaintlabs--crossaint-tribe-analyzer-analyze-async.modal.run";
   }
 
   // Best-effort transformation: https://...-analyze.modal.run -> ...-analyze-async.modal.run
@@ -311,7 +311,7 @@ const getModalResultUrl = () => {
 
   const analyzeUrl = process.env.MODAL_ENDPOINT_URL;
   if (!analyzeUrl) {
-    return "https://sriharideveloper--croissant-tribe-analyzer-analyze-result.modal.run";
+    return "https://crossaintlabs--crossaint-tribe-analyzer-analyze-result.modal.run";
   }
 
   return analyzeUrl.replace(/-analyze\.modal\.run$/, "-analyze-result.modal.run");
@@ -474,7 +474,7 @@ export async function GET(request) {
                     modal_error: modalJson?.error || "Analysis job failed",
                   }),
                   gemini_analysis:
-                    "Croissant analysis failed before completion. Please try this thumbnail again.",
+                    "Crossaint Labs analysis failed before completion. Please try this thumbnail again.",
                 })
                 .eq("id", row.id);
 
@@ -703,14 +703,14 @@ export async function POST(request) {
             modal_error: modalErr?.message || "Modal start failed",
           }),
           gemini_analysis:
-            "Croissant analysis could not start. Please try again in a moment.",
+            "Analysis could not start. Please check your network and try again.",
         })
         .eq("id", insertedRow.id);
 
       return NextResponse.json(
         {
           error:
-            "Croissant analysis service is temporarily unavailable. Please try again shortly.",
+            "The analysis service is temporarily unavailable. Please try again shortly.",
           details: modalErr?.message,
         },
         { status: 502 },

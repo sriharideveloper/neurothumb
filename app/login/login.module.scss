@@ -1,188 +1,195 @@
 .page {
   min-height: 100vh;
-  background:
-    radial-gradient(circle at 18% 4%, rgba(255, 184, 107, 0.18), transparent 30rem),
-    linear-gradient(135deg, var(--bg), var(--bg-2));
+  background: var(--bg);
   color: var(--text);
-  padding: 24px;
-}
-
-.nav,
-.shell {
-  width: min(100%, 1080px);
-  margin: 0 auto;
 }
 
 .nav {
+  border-bottom: 1px solid var(--border);
+  background: rgba(0,0,0,0.3);
+  backdrop-filter: blur(12px);
+}
+
+.navContent {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 16px 24px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
-  padding: 8px 0 64px;
 }
 
 .brand {
-  display: inline-flex;
+  display: flex;
   align-items: center;
-  gap: 10px;
-  font-weight: 800;
+  gap: 12px;
+  font-weight: 700;
+  font-size: 1.1rem;
 }
 
-.brand span {
-  display: grid;
-  place-items: center;
-  width: 34px;
-  height: 34px;
+.logoMark {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--surface-strong);
   border: 1px solid var(--border-strong);
-  border-radius: 8px;
-  color: var(--accent);
-  font-family: var(--font-display);
-  font-size: 1.3rem;
+  border-radius: var(--radius-md);
+  font-size: 1rem;
 }
 
 .backLink {
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  background: var(--surface);
-  color: var(--text);
-  padding: 10px 14px;
-  font-weight: 800;
   font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--muted);
+  transition: var(--transition-fast);
+  
+  &:hover {
+    color: var(--text);
+  }
 }
 
 .shell {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 80px 24px;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(320px, 430px);
-  gap: clamp(32px, 7vw, 92px);
+  grid-template-columns: 1fr 420px;
+  gap: 80px;
   align-items: center;
+  
+  @media (max-width: 968px) {
+    grid-template-columns: 1fr;
+    padding: 60px 24px;
+    gap: 60px;
+    text-align: center;
+  }
 }
 
 .copy h1 {
-  font-size: clamp(2.5rem, 6vw, 5.8rem);
-  line-height: 0.95;
-  max-width: 720px;
-  margin-bottom: 22px;
-}
-
-.copy p:not(.kicker) {
-  color: var(--muted);
-  max-width: 620px;
-  font-size: 1.04rem;
+  font-size: 4rem;
+  line-height: 1.1;
+  margin: 16px 0 24px;
+  
+  @media (max-width: 640px) {
+    font-size: 2.5rem;
+  }
 }
 
 .kicker {
-  color: var(--accent);
-  letter-spacing: 0.16em;
+  font-size: 0.8rem;
+  font-weight: 700;
   text-transform: uppercase;
-  font-size: 0.76rem;
-  font-weight: 800;
-  margin-bottom: 18px;
+  letter-spacing: 0.1em;
+  color: var(--accent);
 }
 
-.form {
-  border: 1px solid var(--border);
-  border-radius: 8px;
+.copy p {
+  font-size: 1.25rem;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.formCard {
   background: var(--surface);
-  box-shadow: 0 24px 70px var(--shadow);
-  padding: 22px;
-  display: grid;
-  gap: 16px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-lg);
+  padding: 40px;
+  box-shadow: 0 40px 80px var(--shadow);
+  backdrop-filter: blur(20px);
 }
 
 .tabs {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 6px;
-  padding: 6px;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  background: var(--surface-soft);
-}
-
-.tabs button,
-.submit {
-  border: 1px solid transparent;
-  border-radius: 8px;
-  padding: 11px 12px;
-  font-weight: 800;
-  color: var(--text);
-  background: transparent;
-}
-
-.tabs .activeTab {
-  color: var(--accent);
+  display: flex;
   background: var(--surface-strong);
-  border-color: var(--accent);
+  padding: 4px;
+  border-radius: var(--radius-md);
+  margin-bottom: 32px;
 }
 
-.form label {
-  display: grid;
-  gap: 8px;
+.tabs button {
+  flex: 1;
+  padding: 8px;
+  border-radius: var(--radius-sm);
+  font-weight: 700;
+  font-size: 0.9rem;
   color: var(--muted);
-  font-size: 0.88rem;
-  font-weight: 800;
+  transition: var(--transition-fast);
+  
+  &.activeTab {
+    background: var(--surface);
+    color: var(--text);
+    box-shadow: 0 2px 8px var(--shadow);
+  }
 }
 
-.form input {
-  width: 100%;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.08);
-  color: var(--text);
-  padding: 12px 13px;
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  text-align: left;
 }
 
-.form input::placeholder {
+.inputGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.inputGroup label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
   color: var(--subtle);
 }
 
+.inputGroup input {
+  background: var(--surface-strong);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 12px 16px;
+  color: var(--text);
+  font-size: 1rem;
+  transition: var(--transition-fast);
+  
+  &:focus {
+    border-color: var(--accent);
+    background: var(--surface);
+  }
+}
+
 .submit {
-  background: linear-gradient(135deg, var(--accent), #f07167);
-  color: #140d08;
-  min-height: 46px;
-}
-
-.submit:disabled {
-  opacity: 0.62;
-  cursor: not-allowed;
-}
-
-.error,
-.message {
-  border-radius: 8px;
-  padding: 12px;
-  font-size: 0.9rem;
+  background: var(--text);
+  color: var(--bg);
+  padding: 14px;
+  border-radius: var(--radius-md);
+  font-weight: 700;
+  font-size: 1rem;
+  margin-top: 12px;
+  
+  &:hover {
+    transform: translateY(-2px);
+  }
+  
+  &:disabled {
+    opacity: 0.5;
+  }
 }
 
 .error {
   color: var(--danger);
-  background: rgba(255, 122, 122, 0.1);
-  border: 1px solid rgba(255, 122, 122, 0.22);
+  font-size: 0.9rem;
+  background: rgba(255, 79, 79, 0.1);
+  padding: 12px;
+  border-radius: var(--radius-md);
 }
 
 .message {
-  color: var(--accent-2);
-  background: rgba(111, 214, 255, 0.1);
-  border: 1px solid rgba(111, 214, 255, 0.22);
-}
-
-@media (max-width: 820px) {
-  .nav {
-    padding-bottom: 42px;
-  }
-
-  .shell {
-    grid-template-columns: 1fr;
-  }
-}
-
-@media (max-width: 560px) {
-  .page {
-    padding: 18px;
-  }
-
-  .nav {
-    align-items: stretch;
-    flex-direction: column;
-  }
+  color: var(--accent);
+  font-size: 0.9rem;
+  background: rgba(var(--accent-rgb), 0.1);
+  padding: 12px;
+  border-radius: var(--radius-md);
 }

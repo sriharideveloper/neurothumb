@@ -1,5 +1,5 @@
 """
-Croissant – Modal.com Backend
+Crossaint Labs – Modal.com Backend
 TRIBE v2 thumbnail analysis endpoint.
 
 Deploy: modal deploy backend.py
@@ -18,7 +18,7 @@ from pathlib import Path
 # ---------------------------------------------------------------------------
 # Modal App & Image
 # ---------------------------------------------------------------------------
-app = modal.App("croissant-tribe-analyzer")
+app = modal.App("crossaint-tribe-analyzer")
 
 tribe_image = (
     modal.Image.debian_slim(python_version="3.11")
@@ -42,7 +42,7 @@ tribe_image = (
     )
 )
 
-VOLUME_NAME = "croissant-model-cache"
+VOLUME_NAME = "crossaint-model-cache"
 model_volume = modal.Volume.from_name(VOLUME_NAME, create_if_missing=True)
 CACHE_DIR = "/cache"
 
@@ -283,7 +283,7 @@ class TribeAnalyzer:
         return self._analyze_image_url(
             image_url,
             timeline="thumbnail-analysis",
-            subject="croissant-user",
+            subject="crossaint-user",
         )
 
     @modal.method()
@@ -401,159 +401,120 @@ class TribeAnalyzer:
             x = np.asarray(x, dtype=float)
             y = np.asarray(y, dtype=float)
             if len(x) < 2:
-                return None
-            x = x - x.mean()
-            y = y - y.mean()
-            denom = float(np.sqrt((x * x).sum()) * np.sqrt((y * y).sum()))
-            if denom == 0:
-                return None
-            return float((x * y).sum() / denom)
+                return 0.0
+            vx = x - np.mean(x)
+            vy = y - np.mean(y)
+            denom = np.sqrt(np.sum(vx**2) * np.sum(vy**2))
+            if denom <= 0:
+                return 0.0
+            return float(np.sum(vx * vy) / denom)
 
-        log_views = [math.log10(max(1, r["view_count"])) for r in results]
-        corr_metrics = [
-            "peak_top_roi_score",
-            "mean_top_roi_score",
-            "visual_mean",
-            "attention_control_mean",
-            "language_semantic_mean",
-        ]
+        views = [math.log10(r["view_count"]) for r in results]
         correlations = {
-            m: pearsonr(log_views, [r["metrics"].get(m, 0) for r in results]) for m in corr_metrics
+            "visual_vs_views": round(pearsonr([r["metrics"]["visual_mean"] for r in results], views), 3),
+            "attention_vs_views": round(pearsonr([r["metrics"]["attention_control_mean"] for r in results], views), 3),
+            "language_vs_views": round(pearsonr([r["metrics"]["language_semantic_mean"] for r in results], views), 3),
+            "peak_vs_views": round(pearsonr([r["metrics"]["peak_top_roi_score"] for r in results], views), 3),
         }
 
         return {
             "channel_handle": handle,
-            "channel_url": channel_url,
-            "parameters": {
-                "total_videos": total_videos,
-                "days_old_min": int(days_old_min),
-                "min_duration_sec": int(min_duration_sec),
-                "playlist_end": int(playlist_end),
-            },
-            "correlations": correlations,
             "results": results,
+            "correlations": correlations,
         }
 
 
 # ---------------------------------------------------------------------------
-# Web endpoint for Next.js to call
+# FastAPI / Web Endpoints
 # ---------------------------------------------------------------------------
-@app.function(image=tribe_image, timeout=1200)
-@modal.fastapi_endpoint(method="POST")
-def analyze(data: dict):
+from fastapi import FastAPI, Request, HTTPException
+from fastapi.responses import JSONResponse
+
+web_app = FastAPI()
+
+
+@web_app.post("/")
+async def analyze_thumbnail_web(request: Request):
     """HTTP POST endpoint. Expects JSON: {"image_url": "https://..."}."""
     try:
+        data = await request.json()
         payload = _extract_json_payload(data)
-        image_url = payload.get("image_url") or payload.get("imageUrl")
+        image_url = payload.get("image_url")
         if not image_url:
-            return {"error": "Missing image_url"}, 400
+            raise HTTPException(status_code=400, detail="Missing image_url")
 
         analyzer = TribeAnalyzer()
-        return analyzer.analyze_thumbnail.remote(image_url)
-    except ValueError as exc:
-        return {"error": str(exc)}, 400
+        result = analyzer.analyze_thumbnail.remote(image_url)
+        return result
     except Exception as exc:
-        print("Modal analyze endpoint error:")
         traceback.print_exc()
-        return {"error": str(exc)}, 500
-
-
-@app.function(image=tribe_image, timeout=1200)
-@modal.fastapi_endpoint(method="POST")
-def analyze_async(data: dict):
-    """
-    Starts a durable Modal job and returns immediately.
-
-    Expected JSON: {"image_url": "https://..."}
-    Returns: {"job_id": "..."}.
-    """
-    try:
-        payload = _extract_json_payload(data)
-        image_url = payload.get("image_url") or payload.get("imageUrl")
-        if not image_url:
-            return {"error": "Missing image_url"}, 400
-
-        analyzer = TribeAnalyzer()
-        call = analyzer.analyze_thumbnail.spawn(image_url)
-        return {"job_id": call.object_id}
-    except ValueError as exc:
-        return {"error": str(exc)}, 400
-    except Exception as exc:
-        print("Modal analyze_async endpoint error:")
-        traceback.print_exc()
-        return {"error": str(exc)}, 500
-
-
-@app.function(image=tribe_image, timeout=1200)
-@modal.fastapi_endpoint(method="POST")
-def analyze_result(data: dict):
-    """
-    Fetches the result for a previously started job.
-
-    Expected JSON: {"job_id": "..."}
-    Returns:
-      - {"status": "processing"} while running
-      - {"status": "complete", "result": {...}} when done
-      - {"status": "error", "error": "..."} on failure
-    """
-    try:
-        payload = _extract_json_payload(data)
-        job_id = payload.get("job_id") or payload.get("jobId")
-        if not job_id:
-            return {"error": "Missing job_id"}, 400
-
-        # Modal returns a FunctionCall-like handle by id; `get(timeout=0)` should
-        # raise if not ready (varies by runtime), which we treat as "processing".
-        call = modal.FunctionCall.from_id(str(job_id))
-        try:
-            result = call.get(timeout=0)
-        except Exception:
-            return {"status": "processing"}
-
-        return {"status": "complete", "result": result}
-    except ValueError as exc:
-        return {"error": str(exc)}, 400
-    except Exception as exc:
-        print("Modal analyze_result endpoint error:")
-        traceback.print_exc()
-        return {"status": "error", "error": str(exc)}, 500
-
-
-@app.function(image=tribe_image, timeout=1200)
-@modal.fastapi_endpoint(method="POST")
-def analyze_channel(data: dict):
-    """HTTP POST endpoint. Expects JSON: {"channel_handle": "@...", "total_videos": 10, ...}."""
-    try:
-        payload = _extract_json_payload(data)
-        channel_handle = payload.get("channel_handle") or payload.get("channel") or payload.get("handle")
-        if not channel_handle:
-            return {"error": "Missing channel_handle"}, 400
-
-        analyzer = TribeAnalyzer()
-        return analyzer.analyze_channel.remote(
-            channel_handle,
-            total_videos=int(payload.get("total_videos", 10)),
-            days_old_min=int(payload.get("days_old_min", 14)),
-            min_duration_sec=int(payload.get("min_duration_sec", 180)),
-            playlist_end=int(payload.get("playlist_end", 80)),
+        return JSONResponse(
+            status_code=500,
+            content={"error": str(exc), "traceback": traceback.format_exc()},
         )
-    except ValueError as exc:
-        return {"error": str(exc)}, 400
+
+
+@web_app.post("/channel")
+async def analyze_channel_web(request: Request):
+    """
+    HTTP POST endpoint for channel analysis.
+    Expected JSON: {"channel_handle": "@...", "total_videos": 10, ...}
+    """
+    try:
+        data = await request.json()
+        payload = _extract_json_payload(data)
+        handle = payload.get("channel_handle")
+        if not handle:
+            raise HTTPException(status_code=400, detail="Missing channel_handle")
+
+        analyzer = TribeAnalyzer()
+        result = analyzer.analyze_channel.remote(
+            channel_handle=handle,
+            total_videos=payload.get("total_videos", 10),
+            days_old_min=payload.get("days_old_min", 14),
+            min_duration_sec=payload.get("min_duration_sec", 180),
+            playlist_end=payload.get("playlist_end", 80),
+        )
+        return result
     except Exception as exc:
-        print("Modal analyze_channel endpoint error:")
         traceback.print_exc()
-        return {"error": str(exc)}, 500
+        return JSONResponse(
+            status_code=500,
+            content={"error": str(exc), "traceback": traceback.format_exc()},
+        )
+
+
+@app.function(image=tribe_image, timeout=2400)
+@modal.asgi_app()
+def analyze():
+    return web_app
+
+
+@app.function(image=tribe_image, timeout=2400)
+@modal.asgi_app()
+def analyze_channel():
+    return web_app
 
 
 # ---------------------------------------------------------------------------
-# Local test entrypoint
+# CLI / Local Entrypoint
 # ---------------------------------------------------------------------------
 @app.local_entrypoint()
 def main():
-    """Test with a sample thumbnail."""
     test_url = "https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg"
-    print(f"Testing with: {test_url}")
     analyzer = TribeAnalyzer()
-    result = analyzer.analyze_thumbnail.remote(test_url)
-    print(json.dumps(result["metrics"], indent=2))
-    print(f"Heatmap base64 length: {len(result['heatmap_base64'])} chars")
+    print(f"\n--- Testing single thumbnail: {test_url} ---")
+    res = analyzer.analyze_thumbnail.remote(test_url)
+    print(f"Metrics: {json.dumps(res['metrics'], indent=2)}")
+    print(f"Heatmap (base64 length): {len(res['heatmap_base64'])}")
+
+    test_handle = "@veritasium"
+    print(f"\n--- Testing channel: {test_handle} ---")
+    res = analyzer.analyze_channel.remote(test_handle, total_videos=2)
+    if "error" in res:
+        print(f"Error: {res['error']}")
+    else:
+        print(f"Analyzed {len(res['results'])} videos for {res['channel_handle']}")
+        for r in res["results"]:
+            print(f"  - {r['title']} ({r['view_count']} views)")
+        print(f"Correlations: {res['correlations']}")

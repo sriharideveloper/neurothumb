@@ -1,5 +1,5 @@
 export default function robots() {
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://croissant.ai';
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://crossaint.ai';
 
   return {
     rules: {

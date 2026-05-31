@@ -12,119 +12,44 @@ import Results from '@/components/Results';
 import { useAuth } from '@/app/AuthContext';
 import styles from './page.module.scss';
 
-const proofPoints = [
-  { value: '4', label: 'Core attention signals' },
-  { value: '∞', label: 'Free analyses (open source)' },
-  { value: '24/7', label: 'Saved processing recovery' },
-];
-
 const differentiators = [
   {
-    title: 'Not another design opinion',
-    body: 'Croissant grounds feedback in visual salience, attention control, language semantics, and ROI peak response instead of generic critique.',
+    title: 'Visual Salience',
+    body: 'Ground your feedback in objective cognitive data. We measure attention control and ROI peak response instead of generic critique.',
   },
   {
-    title: 'Frontier tech, no lab required',
-    body: "Upload a thumbnail and the pipeline handles storage, neuro-model inference, heatmap rendering, and Croissant's AI Assistant.",
+    title: 'Frontier Intelligence',
+    body: "Powered by TRIBE v2. Our pipeline handles neuro-model inference and heatmap rendering with cinematic precision.",
   },
   {
-    title: 'Built for accountable teams',
-    body: 'Every signed-in analysis is tied to the right account, saved to history, and recoverable if a tab closes mid-run.',
+    title: 'Account History',
+    body: 'Durable jobs. Every analysis is tied to your account, saved to history, and recoverable even if you close the tab.',
   },
   {
-    title: 'Open source & self-hosted',
-    body: 'Deploy Croissant on your own infrastructure. Use your own Modal, Supabase, and Gemini credentials. Full control, zero vendor lock-in.',
-  },
-];
-
-const caseStudies = [
-  {
-    title: 'Launch trailer thumbnail',
-    image: 'https://images.unsplash.com/photo-1511512578047-dfb367046420?auto=format&fit=crop&q=80&w=900',
-    tag: 'Entertainment',
-    score: '0.942',
-    insight: 'High ROI peak with a clear focal face and strong contrast path.',
-  },
-  {
-    title: 'Studio product reveal',
-    image: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&q=80&w=900',
-    tag: 'Brand',
-    score: '0.816',
-    insight: 'Balanced language semantics and visual salience for premium positioning.',
-  },
-  {
-    title: 'Creator growth experiment',
-    image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&q=80&w=900',
-    tag: 'Creator',
-    score: '0.867',
-    insight: 'Readable headline zone with a stronger emotional trigger opportunity.',
+    title: 'Zero Lock-in',
+    body: 'Fully open-source. Deploy on your own infrastructure with Modal, Supabase, and Gemini credentials.',
   },
 ];
 
 const workflow = [
-  'Upload a thumbnail or run a channel scan.',
-  'Croissant starts a durable analysis job and saves the record.',
-  "TRIBE v2 frontier neuro model turns attention into heatmaps and cognitive signals.",
-  "Croissant's AI Assistant turns the signals into a practical creative decision.",
+  'Upload a thumbnail or initiate a channel scan.',
+  'Durable processing starts. Your data is secured and history is preserved.',
+  "Frontier neuro-models map visual attention into high-fidelity heatmaps.",
+  "AI Strategy Audit provides actionable creative decisions for your next upload.",
 ];
-
-const motionIn = {
-  initial: { opacity: 0, y: 18 },
-  whileInView: { opacity: 1, y: 0 },
-  viewport: { once: true, margin: '-80px' },
-  transition: { duration: 0.55, ease: [0.16, 1, 0.3, 1] },
-};
 
 export default function Home() {
   const [analysisResult, setAnalysisResult] = useState(null);
-  const [showGallery, setShowGallery] = useState(() => {
-    if (typeof window === 'undefined') return false;
-    return new URLSearchParams(window.location.search).get('view') === 'gallery';
-  });
-  const [trialStatus, setTrialStatus] = useState({ canUseTrial: true, used: false });
+  const [showGallery, setShowGallery] = useState(false);
   const [mode, setMode] = useState('thumbnail');
   const { user, signOut } = useAuth();
 
-  const deviceFingerprint = useMemo(() => {
-    if (typeof window === 'undefined') return 'server';
-    return getDeviceFingerprint();
+  useEffect(() => {
+    const view = new URLSearchParams(window.location.search).get('view');
+    if (view === 'gallery') setShowGallery(true);
   }, []);
 
-  const checkTrial = useCallback(async () => {
-    try {
-      const res = await fetch(`/api/analyze?action=check-trial&device=${encodeURIComponent(deviceFingerprint)}`);
-      if (!res.ok) return;
-      const data = await res.json();
-      setTrialStatus(data);
-    } catch (e) {
-      setTrialStatus({ canUseTrial: true, used: false });
-    }
-  }, [deviceFingerprint]);
-
-  useEffect(() => {
-    let ignore = false;
-
-    const loadTrial = async () => {
-      try {
-        const res = await fetch(`/api/analyze?action=check-trial&device=${encodeURIComponent(deviceFingerprint)}`);
-        if (!res.ok || ignore) return;
-        const data = await res.json();
-        if (!ignore) setTrialStatus(data);
-      } catch (e) {
-        if (!ignore) setTrialStatus({ canUseTrial: true, used: false });
-      }
-    };
-
-    loadTrial();
-    return () => {
-      ignore = true;
-    };
-  }, [deviceFingerprint]);
-
-  const handleAnalysisComplete = (data) => {
-    setAnalysisResult(data);
-    checkTrial();
-  };
+  const handleAnalysisComplete = (data) => setAnalysisResult(data);
 
   const handleSelectGeneration = (gen) => {
     setAnalysisResult({
@@ -136,17 +61,19 @@ export default function Home() {
     setShowGallery(false);
   };
 
-  const scrollToAnalyzer = () => {
-    document.getElementById('analyzer')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  };
-
   if (showGallery && user) {
     return (
       <div className={styles.galleryPage}>
-        <nav className={styles.galleryNav}>
-          <button className={styles.backBtn} onClick={() => setShowGallery(false)}>
-            Back to analyzer
-          </button>
+        <nav className={styles.nav}>
+          <div className={styles.navContent}>
+            <button className={styles.brand} onClick={() => setShowGallery(false)}>
+              <span className={styles.logoMark}>🥐</span>
+              <span>Crossaint Labs</span>
+            </button>
+            <button className={styles.secondaryBtn} onClick={() => setShowGallery(false)}>
+              Back to Analyzer
+            </button>
+          </div>
         </nav>
         <Gallery onSelectGeneration={handleSelectGeneration} />
       </div>
@@ -158,295 +85,150 @@ export default function Home() {
   }
 
   return (
-    <>
-      <input className={styles.themeSwitch} id="croissant-theme-switch" type="checkbox" aria-hidden="true" />
-      <main className={styles.main}>
-      <nav className={styles.topNav} aria-label="Primary navigation">
-        <button className={styles.logoButton} onClick={scrollToAnalyzer} aria-label="Go to analyzer">
-          <span className={styles.logoMark}>🥐</span>
-          <span>Croissant</span>
-          <span className={styles.openSourceBadge}>Open Source</span>
-        </button>
-
-        <div className={styles.navLinks}>
-          <a href="#difference">Difference</a>
-          <a href="#workflow">Workflow</a>
-          <a href="#proof">Proof</a>
-          <a href="https://github.com/sriharideveloper/neurothumb" target="_blank" rel="noreferrer" title="GitHub Repository">GitHub</a>
-          <Link href="/privacy">Privacy</Link>
-          <Link href="/terms">Terms</Link>
-        </div>
-
-        <div className={styles.navActions}>
-          <label className={styles.themeBtn} htmlFor="croissant-theme-switch" aria-label="Toggle color theme" role="button" tabIndex={0}>
-            <span className={styles.lightLabel}>Light</span>
-            <span className={styles.darkLabel}>Dark</span>
-          </label>
-          {user ? (
-            <>
-              <button className={styles.secondaryNavBtn} onClick={() => setShowGallery(true)}>
-                Analyses
-              </button>
-              <button className={styles.signInBtn} onClick={signOut}>
-                Sign out
-              </button>
-            </>
-          ) : (
-            <Link className={styles.signInBtn} href="/login">
-              Sign in
-            </Link>
-          )}
+    <main className={styles.main}>
+      <nav className={styles.nav}>
+        <div className={styles.navContent}>
+          <div className={styles.brand}>
+            <span className={styles.logoMark}>🥐</span>
+            <span>Crossaint Labs</span>
+          </div>
+          <div className={styles.navLinks}>
+            <a href="#analyzer">Analyzer</a>
+            <a href="#features">Features</a>
+            <a href="https://github.com/sriharideveloper/neurothumb" target="_blank" rel="noreferrer">GitHub</a>
+          </div>
+          <div className={styles.navActions}>
+            {user ? (
+              <>
+                <button className={styles.secondaryBtn} onClick={() => setShowGallery(true)}>History</button>
+                <button className={styles.primaryBtn} onClick={signOut}>Sign Out</button>
+              </>
+            ) : (
+              <Link href="/login" className={styles.primaryBtn}>Sign In</Link>
+            )}
+          </div>
         </div>
       </nav>
 
-      <motion.section className={styles.hero} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.55 }}>
-        <div className={styles.heroCopy}>
-          <div className={styles.heroKicker}>
-            <span className={styles.openSourceLabel}>🚀 Open Source</span>
-            <p>TRIBE v2 frontier neuro thumbnail intelligence</p>
-          </div>
-          <h1>Creative decisions, backed by attention modeling.</h1>
-          <p className={styles.heroText}>
-            Croissant makes frontier thumbnail analysis usable for creators, production houses, agencies, and brand teams. Upload once, get a neural heatmap, cognitive metrics, and a practical CTR strategy audit. Now open source—deploy on your own infrastructure with your own credentials.
+      <header className={styles.hero}>
+        <motion.div 
+          className={styles.heroContent}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+        >
+          <span className={styles.kicker}>Neuroscience-Powered Intelligence</span>
+          <h1>Creative decisions, <br/>backed by science.</h1>
+          <p>
+            Crossaint Labs makes frontier thumbnail analysis accessible. 
+            Get neural heatmaps, cognitive metrics, and AI-driven CTR strategy in seconds.
           </p>
           <div className={styles.heroActions}>
-            <button className={styles.primaryCta} onClick={scrollToAnalyzer}>
-              Run free analysis
+            <button className={styles.primaryBtn} onClick={() => document.getElementById('analyzer').scrollIntoView({ behavior: 'smooth' })}>
+              Start Free Analysis
             </button>
-            <a className={styles.secondaryCta} href="https://github.com/sriharideveloper/neurothumb" target="_blank" rel="noreferrer">
-              Deploy yourself
+            <a href="https://github.com/sriharideveloper/neurothumb" target="_blank" rel="noreferrer" className={styles.secondaryBtn}>
+              View Source
             </a>
           </div>
-          <div className={styles.trialLine}>
-            {user ? `Signed in as ${user.email}` : 'Unlimited free analyses. No credit card required.'}
-          </div>
-          <div className={styles.licenseBadge}>
-            Licensed under CC-BY-NC 4.0 • Powered by Croissant Labs
-          </div>
-        </div>
+        </motion.div>
+      </header>
 
-        <div className={styles.heroVisual} aria-label="Croissant analysis preview">
-          <div className={styles.dither} aria-hidden="true">
-            <span>░▒▓▒░</span>
-            <span>▒░░▒▓</span>
-            <span>▓▒░░▒</span>
+      <section className={styles.analyzerSection} id="analyzer">
+        <div className={styles.container}>
+          <div className={styles.analyzerHeader}>
+            <h2>The Laboratory</h2>
+            <p>Select your analysis mode to begin.</p>
           </div>
-          <div className={styles.previewFrame}>
-            <div className={styles.previewTop}>
-              <span>Neuro-model run</span>
-              <span>0.942 peak</span>
-            </div>
-            <div className={styles.previewImage}>
-              <div className={styles.heatBlobOne} />
-              <div className={styles.heatBlobTwo} />
-              <div className={styles.thumbnailText}>NEW EPISODE</div>
-            </div>
-            <div className={styles.previewBars}>
-              <span style={{ width: '88%' }} />
-              <span style={{ width: '64%' }} />
-              <span style={{ width: '76%' }} />
-            </div>
+          
+          <div className={styles.analyzerTabs}>
+            <button className={mode === 'thumbnail' ? styles.active : ''} onClick={() => setMode('thumbnail')}>
+              Single Thumbnail
+            </button>
+            <button className={mode === 'channel' ? styles.active : ''} onClick={() => setMode('channel')}>
+              Channel Audit
+            </button>
+          </div>
+
+          <div className={styles.analyzerWrapper}>
+            {mode === 'thumbnail' ? (
+              <Dropzone onAnalysisComplete={handleAnalysisComplete} showAuthPrompt={() => window.location.href = '/login'} />
+            ) : (
+              <ChannelAnalyzer />
+            )}
           </div>
         </div>
-      </motion.section>
+      </section>
 
-      <motion.section className={styles.proofStrip} aria-label="Croissant proof points" {...motionIn}>
-        {proofPoints.map((item) => (
-          <div className={styles.proofItem} key={item.label}>
-            <strong>{item.value}</strong>
-            <span>{item.label}</span>
+      <section className={styles.featuresSection} id="features">
+        <div className={styles.container}>
+          <div className={styles.sectionHeader}>
+            <span className={styles.kicker}>The Difference</span>
+            <h2>Measurable Attention</h2>
           </div>
-        ))}
-      </motion.section>
+          <div className={styles.featuresGrid}>
+            {differentiators.map((feat, i) => (
+              <motion.div 
+                className={styles.featureCard} 
+                key={feat.title}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.1 }}
+              >
+                <h3>{feat.title}</h3>
+                <p>{feat.body}</p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
 
-      <motion.section className={styles.analyzerSection} id="analyzer" {...motionIn}>
-        <div className={styles.sectionIntro}>
-          <p className={styles.kicker}>Use the lab</p>
-          <h2>Run the analysis without needing a research team.</h2>
-          <p>
-            Croissant handles storage, TRIBE v2 frontier neuro-model inference, AI Assistant recommendations, and saved history with account-safe processing. Deploy your own instance or use the hosted version.
-          </p>
-        </div>
-
-        <div className={styles.modeTabs} role="tablist" aria-label="Analyzer mode">
-          <button
-            className={`${styles.tabBtn} ${mode === 'thumbnail' ? styles.tabActive : ''}`}
-            onClick={() => setMode('thumbnail')}
-            type="button"
-          >
-            Single thumbnail
-          </button>
-          <button
-            className={`${styles.tabBtn} ${mode === 'channel' ? styles.tabActive : ''}`}
-            onClick={() => setMode('channel')}
-            type="button"
-          >
-            Channel scan
-          </button>
-        </div>
-
-        <div className={styles.analyzerCard}>
-          {mode === 'thumbnail' ? (
-            <Dropzone
-              onAnalysisComplete={handleAnalysisComplete}
-              showAuthPrompt={() => {
-                window.location.href = '/login';
-              }}
-              deviceFingerprint={deviceFingerprint}
-            />
-          ) : (
-            <ChannelAnalyzer />
-          )}
-        </div>
-      </motion.section>
-
-      <motion.section className={styles.splitSection} id="difference" {...motionIn}>
-        <div>
-          <p className={styles.kicker}>Why Croissant is different</p>
-          <h2>From thumbnail guesswork to measurable attention signals.</h2>
-        </div>
-        <div className={styles.diffGrid}>
-          {differentiators.map((item) => (
-            <article className={styles.diffCard} key={item.title}>
-              <h3>{item.title}</h3>
-              <p>{item.body}</p>
-            </article>
-          ))}
-        </div>
-      </motion.section>
-
-      <motion.section className={styles.ethosSection} id="ethos" {...motionIn}>
-        <div>
-          <p className={styles.kicker}>Research ethos & open source</p>
-          <h2>Built around the idea that creative should be tested against cognition.</h2>
-          <p>Croissant is open source under CC-BY-NC 4.0, enabling researchers, creators, and teams to deploy frontier AI without vendor lock-in.</p>
-        </div>
-        <div className={styles.ethosLinks}>
-          <a href="https://aidemos.atmeta.com/tribev2" target="_blank" rel="noreferrer">
-            Meta TRIBE v2 demo
-          </a>
-          <a href="https://ai.meta.com/research/publications/a-foundation-model-of-vision-audition-and-language-for-in-silico-neuroscience/" target="_blank" rel="noreferrer">
-            Meta research publication
-          </a>
-          <a href="https://github.com/sriharideveloper/neurothumb" target="_blank" rel="noreferrer">
-            GitHub repository
-          </a>
-          <a href="https://github.com/sriharideveloper/neurothumb#quickstart" target="_blank" rel="noreferrer">
-            5-minute setup guide
-          </a>
-        </div>
-      </motion.section>
-
-      <motion.section className={styles.workflowSection} id="workflow" {...motionIn}>
-        <div className={styles.sectionIntro}>
-          <p className={styles.kicker}>How it works</p>
-          <h2>Durable, recoverable, and simple enough for daily creative review.</h2>
-        </div>
-        <div className={styles.workflowGrid}>
-          {workflow.map((step, index) => (
-            <div className={styles.workflowStep} key={step}>
-              <span>{String(index + 1).padStart(2, '0')}</span>
-              <p>{step}</p>
-            </div>
-          ))}
-        </div>
-      </motion.section>
-
-      <motion.section className={styles.caseSection} id="proof" {...motionIn}>
-        <div className={styles.sectionIntro}>
-          <p className={styles.kicker}>Creative intelligence</p>
-          <h2>Made for teams that publish under pressure.</h2>
-          <p>
-            Croissant gives production, growth, and brand teams a common language for thumbnail quality before media spend or release-day momentum is on the line.
-          </p>
-        </div>
-        <div className={styles.caseGrid}>
-          {caseStudies.map((study) => (
-            <article className={styles.caseCard} key={study.title}>
-              <div className={styles.caseImage}>
-                <Image src={study.image} alt={study.title} fill sizes="(max-width: 768px) 100vw, 33vw" />
+      <section className={styles.workflowSection}>
+        <div className={styles.container}>
+          <div className={styles.sectionHeader}>
+            <span className={styles.kicker}>The Workflow</span>
+            <h2>Simple & Sophisticated</h2>
+          </div>
+          <div className={styles.workflowGrid}>
+            {workflow.map((step, i) => (
+              <div className={styles.workflowStep} key={i}>
+                <span className={styles.stepNum}>{i + 1}</span>
+                <p>{step}</p>
               </div>
-              <div className={styles.caseBody}>
-                <div className={styles.caseMeta}>
-                  <span>{study.tag}</span>
-                  <strong>{study.score}</strong>
-                </div>
-                <h3>{study.title}</h3>
-                <p>{study.insight}</p>
-              </div>
-            </article>
-          ))}
+            ))}
+          </div>
         </div>
-      </motion.section>
-
-      {user && (
-        <section className={styles.userAnalysesSection}>
-          <Gallery onSelectGeneration={handleSelectGeneration} />
-        </section>
-      )}
-
-      <motion.section className={styles.ctaSection} {...motionIn}>
-        <p className={styles.kicker}>Bring the frontier to publishing</p>
-        <h2>One upload can change the creative conversation.</h2>
-        <p>
-          Use Croissant for pitch reviews, thumbnail variants, creator packaging, launch campaigns, and brand-safe creative iteration. Deploy it yourself with your own credentials.
-        </p>
-        <div className={styles.heroActions}>
-          <button className={styles.primaryCta} onClick={scrollToAnalyzer}>
-            Analyze a thumbnail
-          </button>
-          <a className={styles.secondaryCta} href="https://github.com/sriharideveloper/neurothumb" target="_blank" rel="noreferrer">
-            Self-host on GitHub
-          </a>
-        </div>
-      </motion.section>
+      </section>
 
       <footer className={styles.footer}>
-        <div>
-          <strong>Croissant Labs</strong>
-          <p>TRIBE v2 frontier neuro attention modeling made usable for modern creative teams. Open source, self-hosted, no vendor lock-in.</p>
-        </div>
-        <div className={styles.footerLinks}>
-          <div>
-            <h4>Product</h4>
-            <a href="#analyzer">Analyzer</a>
-            <a href="#difference">Why Croissant</a>
-            <a href="#workflow">How it works</a>
+        <div className={styles.container}>
+          <div className={styles.footerTop}>
+            <div className={styles.footerBrand}>
+              <div className={styles.brand}>
+                <span className={styles.logoMark}>🥐</span>
+                <span>Crossaint Labs</span>
+              </div>
+              <p>Meta frontier neuro thumbnail intelligence for the next generation of creators.</p>
+            </div>
+            <div className={styles.footerLinks}>
+              <div className={styles.linkGroup}>
+                <h4>Product</h4>
+                <a href="#analyzer">Analyzer</a>
+                <a href="https://github.com/sriharideveloper/neurothumb" target="_blank" rel="noreferrer">GitHub</a>
+              </div>
+              <div className={styles.linkGroup}>
+                <h4>Legal</h4>
+                <Link href="/privacy">Privacy</Link>
+                <Link href="/terms">Terms</Link>
+              </div>
+            </div>
           </div>
-          <div>
-            <h4>Community</h4>
-            <a href="https://github.com/sriharideveloper/neurothumb" target="_blank" rel="noreferrer">GitHub</a>
-            <a href="https://github.com/sriharideveloper/neurothumb/issues" target="_blank" rel="noreferrer">Issues</a>
-            <a href="https://github.com/sriharideveloper/neurothumb#contributing" target="_blank" rel="noreferrer">Contributing</a>
+          <div className={styles.footerBottom}>
+            <p>© 2026 Crossaint Labs. Built by Srihari Muralikrishnan.</p>
           </div>
-          <div>
-            <h4>Legal</h4>
-            <Link href="/privacy">Privacy</Link>
-            <Link href="/terms">Terms</Link>
-            <a href="https://github.com/sriharideveloper/neurothumb/blob/main/LICENSE" target="_blank" rel="noreferrer">CC-BY-NC 4.0</a>
-          </div>
-        </div>
-        <div className={styles.footerBottom}>
-          <p>© 2024 Croissant Labs. Licensed under CC-BY-NC 4.0. Powered by TRIBE v2 (Meta).</p>
-          <p>Built with ❤️ by the community. <a href="https://github.com/sriharideveloper/neurothumb" target="_blank" rel="noreferrer">Contribute on GitHub</a></p>
         </div>
       </footer>
-      </main>
-    </>
+    </main>
   );
-}
-
-function getDeviceFingerprint() {
-  if (typeof window === 'undefined') return 'server';
-  const nav = window.navigator;
-  const screen = window.screen;
-  const parts = [
-    nav.userAgent,
-    nav.language,
-    screen.width,
-    screen.height,
-    screen.colorDepth,
-    new Date().getTimezoneOffset(),
-  ];
-  return btoa(parts.join('|')).slice(0, 32);
 }

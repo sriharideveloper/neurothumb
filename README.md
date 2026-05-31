@@ -1,4 +1,4 @@
-# Neurothumb - Powered by Croissant Labs
+# Neurothumb - Powered by Crossaint Labs
 
 **An open-source AI platform for analyzing YouTube thumbnails and channels using neuroscience-powered TRIBE v2 model with Bring-Your-Own-Key (BYOK) integration.**
 
@@ -100,10 +100,10 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
 SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
 
 # Modal
-MODAL_ENDPOINT_URL=https://your-username--croissant-analyze.modal.run
-MODAL_CHANNEL_ENDPOINT_URL=https://your-username--croissant-analyze-channel.modal.run
-MODAL_ASYNC_ENDPOINT_URL=https://your-username--croissant-async.modal.run
-MODAL_RESULT_ENDPOINT_URL=https://your-username--croissant-result.modal.run
+MODAL_ENDPOINT_URL=https://your-username--crossaint-analyze.modal.run
+MODAL_CHANNEL_ENDPOINT_URL=https://your-username--crossaint-analyze-channel.modal.run
+MODAL_ASYNC_ENDPOINT_URL=https://your-username--crossaint-async.modal.run
+MODAL_RESULT_ENDPOINT_URL=https://your-username--crossaint-result.modal.run
 
 # Gemini (Optional)
 GEMINI_API_KEY=your-gemini-api-key
@@ -354,17 +354,8 @@ If you use Neurothumb in your research, please cite:
 - **AI Enhancement**: Google Gemini
 - **Open Source Community**: All contributors and users
 
-## Support
-
-For issues, questions, or suggestions:
-
-1. Check existing [GitHub Issues](https://github.com/sriharideveloper/neurothumb/issues)
-2. Read [QUICKSTART.md](QUICKSTART.md) for quick setup help
-3. Read [ENV_SETUP.md](ENV_SETUP.md) for detailed environment configuration
-4. Create a new issue with detailed description
-
 ---
 
-**Neurothumb** - Powered by **Croissant Labs** 🥐
+**Neurothumb** - Powered by **Crossaint Labs** 🥐
 
 *Making neuroscience-powered content analysis accessible to everyone.*

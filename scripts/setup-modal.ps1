@@ -208,8 +208,8 @@ function Extract-Endpoints {
     catch {
         Write-Warning "Could not automatically extract endpoints"
         Write-Info "Please manually add endpoints to .env.local:"
-        Write-Host "  MODAL_ENDPOINT_URL=https://your-username--croissant-analyze.modal.run"
-        Write-Host "  MODAL_CHANNEL_ENDPOINT_URL=https://your-username--croissant-analyze-channel.modal.run"
+        Write-Host "  MODAL_ENDPOINT_URL=https://your-username--crossaint-analyze.modal.run"
+        Write-Host "  MODAL_CHANNEL_ENDPOINT_URL=https://your-username--crossaint-analyze-channel.modal.run"
         return $false
     }
 }
@@ -234,8 +234,8 @@ function Generate-EnvFile {
 # ============================================================================
 
 # Modal Configuration
-MODAL_ENDPOINT_URL=$($EndpointUrl -or 'https://your-username--croissant-analyze.modal.run')
-MODAL_CHANNEL_ENDPOINT_URL=$($ChannelEndpointUrl -or 'https://your-username--croissant-analyze-channel.modal.run')
+MODAL_ENDPOINT_URL=$($EndpointUrl -or 'https://your-username--crossaint-analyze.modal.run')
+MODAL_CHANNEL_ENDPOINT_URL=$($ChannelEndpointUrl -or 'https://your-username--crossaint-analyze-channel.modal.run')
 
 # Supabase Configuration (REQUIRED - Add your credentials)
 NEXT_PUBLIC_SUPABASE_URL=
