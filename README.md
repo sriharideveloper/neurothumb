@@ -1,7 +1,9 @@
 # Neurothumb - Powered by Crossaint Labs
+
 <p align="center">
-  <img src="https://i.ibb.co/hRR9qFFS/Croissant-Labs.png" alt="Neurothumb - TRIBE v2 Brain Heatmap Analysis" width="100%">
+  <img src="docs/Croissant%20Labs.jpg" alt="Neurothumb by Croissant Labs - Neuroscience-powered YouTube Analyzer" width="100%">
 </p>
+
 **An open-source AI platform for analyzing YouTube thumbnails and channels using neuroscience-powered TRIBE v2 model with Bring-Your-Own-Key (BYOK) integration.**
 
 Neurothumb is a sophisticated web application that leverages the TRIBE v2 model from Square-Zero-Labs to analyze how YouTube thumbnails and channel content engage different regions of the human brain. This open-source version enables developers to deploy their own instance with complete control over API keys and infrastructure.
