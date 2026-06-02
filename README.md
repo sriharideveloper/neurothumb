@@ -1,7 +1,7 @@
 # Neurothumb - Powered by Crossaint Labs
 
 <p align="center">
-  <img src="docs/Croissant%20Labs.jpg" alt="Neurothumb by Croissant Labs - Neuroscience-powered YouTube Analyzer" width="100%">
+  <img src="docs/Croissant Labs.jpg" alt="Neurothumb by Croissant Labs - Neuroscience-powered YouTube Analyzer" width="100%">
 </p>
 
 **An open-source AI platform for analyzing YouTube thumbnails and channels using neuroscience-powered TRIBE v2 model with Bring-Your-Own-Key (BYOK) integration.**
